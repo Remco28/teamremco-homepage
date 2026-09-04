@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en" data-sky="cloud" data-day="day" data-live="loading">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Team Remco — a place for creation and expression. Live New York sky and a tiny console for local experiments." />
+  <meta name="theme-color" content="#0b1226" id="themeColor" />
+  <title>Team Remco — a place for creation and expression</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#consoleInput">Skip to console</a>
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#top" aria-label="Team Remco — home">
+        <span class="brand-mark" aria-hidden="true">◉</span>
+        <span class="brand-text"><strong class="wordmark">Team Remco</strong></span>
+      </a>
+      <p class="wx-chip" id="wxChip" role="status">
+        <span class="wx-dot" id="wxDot" aria-hidden="true"></span>
+        <span id="wxChipText">reading New York sky…</span>
+      </p>
+      <button class="pill-btn" id="motionBtn" type="button" aria-pressed="true">Motion: on</button>
+    </div>
+  </header>
+
+  <main id="top" class="wrap">
+    <section class="instrument" aria-labelledby="title">
+      <div class="title-block">
+        <p class="eyebrow">A PLACE FOR CREATION AND EXPRESSION</p>
+        <h1 id="title">New York sky, <span class="accent">playable.</span></h1>
+        <p class="lede">This page is styled by the weather in New York. There's a console you can play with to make you feel like a Linux nerd.</p>
+
+      </div>
+
+      <section class="console" aria-label="Team Remco console">
+        <div class="term-bar">
+          <span class="dot dot-r" aria-hidden="true"></span><span class="dot dot-y" aria-hidden="true"></span><span class="dot dot-g" aria-hidden="true"></span>
+          <span class="term-title">team remco · nyc sky console</span>
+          <span class="term-status" id="termStatus">ready</span>
+        </div>
+        <div class="term-output" id="termOutput" tabindex="0" aria-label="Console output. Use the input below to type commands."></div>
+        <form class="term-form" id="termForm" autocomplete="off">
+          <label class="visually-hidden" for="consoleInput">Type a console command</label>
+          <span class="prompt" aria-hidden="true">$</span>
+          <input id="consoleInput" name="command" type="text" spellcheck="false"
+                 autocapitalize="off" autocomplete="off" placeholder="type 'help' — try dice 2d6 (2 dice, 6 sides)" />
+        </form>
+        <div class="term-chips" aria-label="Suggested commands">
+          <button type="button" data-cmd="help">help</button>
+          <button type="button" data-cmd="weather">weather</button>
+          <button type="button" data-cmd="dice 2d6">dice 2d6</button>
+          <button type="button" data-cmd="joke">joke</button>
+          <button type="button" data-cmd="about-me">about-me</button>
+        </div>
+        <p class="console-note">Dice format: <code>NdM</code> means N dice with M sides. Try <code>dice 2d6</code>.</p>
+        <div class="presets" role="group" aria-label="Sky presets. Live follows New York weather; the rest are honest previews.">
+          <span class="presets-label" id="presetsLabel">Sky:</span>
+          <div class="presets-btns" role="group" aria-labelledby="presetsLabel">
+            <button type="button" data-sky-btn="live" aria-pressed="true">● Live NYC</button>
+            <button type="button" data-sky-btn="clear" aria-pressed="false">Clear</button>
+            <button type="button" data-sky-btn="cloud" aria-pressed="false">Cloud</button>
+            <button type="button" data-sky-btn="rain" aria-pressed="false">Rain</button>
+            <button type="button" data-sky-btn="storm" aria-pressed="false">Storm</button>
+            <button type="button" data-sky-btn="snow" aria-pressed="false">Snow</button>
+            <button type="button" data-sky-btn="fog" aria-pressed="false">Fog</button>
+          </div>
+          <p class="presets-note" id="skyNote">Following live New York weather.</p>
+        </div>
+      </section>
+    </section>
+
+    <noscript>
+      <section class="noscript-note" aria-label="Without JavaScript">
+        <h2>A quiet static page.</h2>
+        <p>Without JavaScript you get this calm note instead of the instrument: Team Remco is a place for creation and expression. The live sky and console need JavaScript — everything else on this page is plain static HTML and CSS with no trackers.</p>
+      </section>
+    </noscript>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p><strong>Team Remco</strong> · explore the machine, expand the mind.</p>
+
+      <p>© <span id="year">2026</span> Team Remco · <span class="kbd-hint">Tip: press <kbd>/</kbd> to jump to the console.</span></p>
+    </div>
+  </footer>
+
+  <a class="tailscale-link" href="tailscale.html" aria-label="Open the Tailscale home page" title="Tailscale home (placeholder)">
+    <img src="tailscale.svg" alt="" width="24" height="24" />
+  </a>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
