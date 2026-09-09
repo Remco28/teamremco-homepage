@@ -415,16 +415,252 @@
     const rolls = Array.from({ length: n }, () => 1 + Math.floor(Math.random() * sides));
     return { rolls, total: rolls.reduce((a, b) => a + b, 0), sides };
   }
-  function snapshot() {
-    const c = navigator.connection || {};
-    const lines = [
-      "about-me — browser-reported, ephemeral, never sent anywhere:",
-      `  language: ${navigator.language} · cores: ${navigator.hardwareConcurrency || "?"} · ram: ${navigator.deviceMemory ? "~" + navigator.deviceMemory + "GB" : "?"}`,
-      `  viewport: ${window.innerWidth}×${window.innerHeight} · pixels: ×${window.devicePixelRatio || 1} · touch: ${matchMedia("(pointer: coarse)").matches ? "likely" : "unlikely"}`,
-      `  timezone: ${(Intl.DateTimeFormat().resolvedOptions() || {}).timeZone || "?"} · online: ${navigator.onLine} · net: ${c.effectiveType || "?"}`,
-      `  motion: ${prefersReduced.matches ? "you prefer reduced motion (honored)" : "full motion OK"} · sky: ${state.sky} (${state.live})`
-    ];
-    lines.forEach(l => print(l, "dim"));
+  const PORTALS = [
+    { u: "https://en.wikipedia.org/wiki/Special:Random", t: "Wikipedia — a truly random article" },
+    { u: "https://www.openstreetmap.org", t: "OpenStreetMap — the people's map" },
+    { u: "https://archive.org", t: "Internet Archive — memory of the web" },
+    { u: "https://www.nasa.gov", t: "NASA — look up" },
+    { u: "https://www.bbc.com", t: "BBC — the old front page" },
+    { u: "https://search.marginalia.nu", t: "Marginalia — the small-web search engine" },
+    { u: "https://radio.garden", t: "Radio Garden — spin the globe, hear a station" },
+    { u: "https://pointerpointer.com", t: "Pointer Pointer — it finds your cursor" },
+    { u: "https://strobe.cool", t: "Strobe — do not stare too long" },
+    { u: "https://patatap.com", t: "Patatap — type to make sound" },
+    { u: "https://bongo.cat", t: "Bongo Cat — it plays for you" },
+    { u: "https://binarypiano.com", t: "Binary Piano — 88 keys of math" },
+    { u: "https://copy.sh/v86/", t: "v86 — Linux in your browser" },
+    { u: "https://www.pcjs.org", t: "PCjs — a museum of machines" },
+    { u: "https://crontab.guru", t: "Crontab Guru — for the nerds" },
+    { u: "https://devhints.io", t: "Devhints — cheat sheets" },
+    { u: "https://teachyourselfcs.com", t: "Teach Yourself CS — the long road" },
+    { u: "https://projecteuler.net", t: "Project Euler — math with a keyboard" },
+    { u: "https://adventofcode.com", t: "Advent of Code — December hurts" },
+    { u: "https://overthewire.org/wargames/", t: "OverTheWire — learn security by playing" },
+    { u: "https://www.catb.org/~esr/writings/taoup/html/", t: "The Art of Unix Programming — Eric Raymond" },
+    { u: "https://www.catb.org/esr/faqs/smart-questions.html", t: "How To Ask Questions The Smart Way" },
+    { u: "https://kottke.org", t: "Kottke — blogging since before it was cool" },
+    { u: "https://blog.pkh.me", t: "pkh.me — a quiet engineering blog" },
+    { u: "https://fauux.neocities.org", t: "Fauux — a tiny personal corner" },
+    { u: "https://sadgrl.online", t: "Sadgrl — old-web layouts" },
+    { u: "https://links.yesterweb.org", t: "Yesterweb — a directory of the small web" },
+    { u: "https://www.faqs.org/faqs/", t: "Internet FAQs — the 90s are still here" },
+    { u: "https://textfiles.com/directory.html", t: "Textfiles — Jason Scott's archive" },
+    { u: "https://musicforprogramming.net/latest/", t: "Music for Programming — focus fuel" },
+    { u: "https://www.calligrapher.ai", t: "Calligrapher — type, get handwriting" },
+    { u: "https://asoftmurmur.com", t: "A Soft Murmur — ambient noise mixer" },
+    { u: "https://theuselessweb.com", t: "The Useless Web — the ancestor of this command" },
+    { u: "https://longnow.org", t: "The Long Now — think in 10,000 years" },
+    { u: "https://www.gutenberg.org", t: "Project Gutenberg — free books" },
+    { u: "https://100r.co", t: "Hundred Rabbits — off-grid tech sailors" },
+    { u: "https://weirdorconfusing.com", t: "Weird or Confusing — exactly what it says" },
+    { u: "https://eelslap.com", t: "Eel Slap — slap with an eel" },
+    { u: "https://corgiorgy.com", t: "Corgi Orgy — self-explanatory" },
+    { u: "https://fallingsandgame.com", t: "Falling Sand — a timeless toy" }
+  ];
+  function pickPortal() {
+    // Curated locally. API-ready: later this becomes `fetch(workerUrl)` with
+    // identical return shape { u, t }. No network, no trackers in this version.
+    const i = new Uint32Array(1);
+    crypto.getRandomValues(i);
+    return PORTALS[i[0] % PORTALS.length];
+  }
+  function genPassword(len) {
+    const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ", lower = "abcdefghijkmnopqrstuvwxyz",
+      digits = "23456789", symbols = "!@#$%^&*()-_=+[]{};:,.?";
+    const all = upper + lower + digits + symbols;
+    const rand = (n) => {
+      const b = new Uint32Array(n);
+      crypto.getRandomValues(b);
+      return Array.from(b, (v) => v % all.length);
+    };
+    // guarantee one of each class (most common policy: upper+lower+digit+symbol)
+    const pick = (s) => s[crypto.getRandomValues(new Uint32Array(1))[0] % s.length];
+    const chars = [pick(upper), pick(lower), pick(digits), pick(symbols)];
+    const rest = rand(len - chars.length).map((k) => all[k]);
+    const outArr = chars.concat(rest);
+    // Fisher–Yates with crypto randomness
+    for (let k = outArr.length - 1; k > 0; k--) {
+      const j = crypto.getRandomValues(new Uint32Array(1))[0] % (k + 1);
+      [outArr[k], outArr[j]] = [outArr[j], outArr[k]];
+    }
+    return outArr.join("");
+  }
+  /* ----- sisyphus: one silent push, procedurally drawn so it stays crisp ----- */
+  let sisyphusBusy = false, sisyphusTimers = [];
+  function sisyphusCancel() {
+    sisyphusTimers.forEach(clearTimeout);
+    sisyphusTimers = [];
+    sisyphusBusy = false;
+  }
+  function drawSisyphus(o) {
+    // o: { s (0 bottom → 1 peak), pose, boulderS, dust:[], sparkle:bool, sweat:bool, pebble:bool, hop }
+    const W = 30, H = 10;
+    const g = Array.from({ length: H }, () => Array(W).fill(" "));
+    const surf = (x) => 8 - Math.round(Math.max(0, Math.min(29, x)) * 6 / 29);
+    // stars + moon (fixed, deterministic)
+    [[3, 0], [9, 1], [15, 0], [21, 1], [27, 0]].forEach(([x, y]) => { g[y][x] = "·"; });
+    g[0][1] = "☾";
+    // peak cairn: the silent goal
+    const px = 27;
+    g[surf(px) - 1][px] = "∴";
+    // hill slope
+    for (let x = 0; x < W; x++) {
+      const y = surf(x);
+      g[y][x] = (x >= 25) ? "_" : "/";
+    }
+    for (let x = 0; x < W; x++) g[H - 1][x] = "_";
+    // pebble kicked loose underfoot
+    if (o.pebble) {
+      const fx = Math.round(o.fx), fy = Math.round(o.fy);
+      if (g[fy] && g[fy][fx - 2]) g[fy][fx - 2] = "·";
+      if (g[fy] && g[fy][fx - 3]) g[fy][fx - 3] = ".";
+    }
+    // dust trail behind a rolling boulder
+    (o.dust || []).forEach(([dx, dy, ch]) => {
+      dx = Math.round(dx); dy = Math.round(dy);
+      if (dy >= 0 && dy < H && dx >= 0 && dx < W && g[dy][dx] === " ") g[dy][dx] = ch;
+    });
+    // boulder
+    const bx = Math.round(2 + (o.boulderS === undefined ? o.s : o.boulderS) * 23);
+    let by = surf(bx) - 1 + (o.hop ? -1 : 0);
+    by = Math.max(0, Math.min(H - 1, by));
+    if (g[by][bx] !== undefined) g[by][bx] = "O";
+    // figure, anchored at feet (fx, fy on the slope)
+    const fx = Math.round(o.fx), fy = Math.round(o.fy);
+    const set = (dx, dy, ch) => {
+      const x = fx + dx, y = fy + dy;
+      if (y >= 0 && y < H && x >= 0 && x < W && ch !== " ") g[y][x] = ch;
+    };
+    if (o.pose === "push" || o.pose === "strain") {
+      const lean = o.pose === "strain" ? 1 : 0;
+      set(lean, -2, "o");
+      set(-1 + lean, -1, "-"); set(lean, -1, "|"); set(1 + lean, -1, "\\");
+      set(-1, 0, "/"); set(1, 0, "\\");
+      if (o.sweat) set(2 + lean, -3, "'");
+    } else if (o.pose === "triumph") {
+      set(-1, -2, "\\"); set(0, -2, "o"); set(1, -2, "/");
+      set(0, -1, "|");
+      set(-1, 0, "/"); set(1, 0, "\\");
+    } else if (o.pose === "reach") {
+      set(0, -2, "o");
+      set(-1, -1, "-"); set(0, -1, "|"); set(1, -1, "-");
+      set(-1, 0, "/"); set(1, 0, "\\");
+    } else if (o.pose === "watch") {
+      set(0, -2, "o");
+      set(0, -1, "|");
+      set(-1, 0, "/"); set(1, 0, "\\");
+    } else if (o.pose === "slump") {
+      set(0, -2, " ");
+      set(0, -1, "_"); set(1, -1, "o");
+      set(-1, 0, "/"); set(0, 0, "|"); set(1, 0, "\\");
+    } else if (o.pose === "sit") {
+      set(0, -1, "o");
+      set(-1, 0, "("); set(0, 0, "_"); set(1, 0, ")");
+    }
+    // triumph sparkles around the peak
+    if (o.sparkle) {
+      [[px - 2, surf(px) - 3, "*"], [px + 1, surf(px) - 2, "+"], [px, surf(px) - 4, "*"]]
+        .forEach(([x, y, ch]) => { if (y >= 0 && y < H && x >= 0 && x < W) g[y][x] = ch; });
+    }
+    return g.map((r) => r.join("").replace(/\s+$/, "")).join("\n");
+  }
+  function sisyphusStatic() {
+    const s = 0.45, bx = 2 + s * 23, fx = bx - 2.2;
+    const surf = (x) => 8 - Math.round(x * 6 / 29);
+    return drawSisyphus({ s, fx, fy: surf(fx) });
+  }
+  function runSisyphus() {
+    if (sisyphusBusy) { print("sisyphus is already pushing.", "dim"); return; }
+    if (!canvasMotion()) {
+      // reduced motion: one honest still, no animation
+      printRich((div) => {
+        const pre = document.createElement("pre");
+        pre.style.margin = "0";
+        pre.textContent = sisyphusStatic();
+        div.appendChild(pre);
+      });
+      return;
+    }
+    sisyphusBusy = true;
+    termStatus.textContent = "pushing…";
+    const preWrap = document.createElement("div");
+    const pre = document.createElement("pre");
+    pre.style.margin = "0";
+    preWrap.appendChild(pre);
+    out.appendChild(preWrap);
+    const surf = (x) => 8 - Math.round(Math.max(0, Math.min(29, x)) * 6 / 29);
+    const show = (frame) => {
+      pre.textContent = drawSisyphus(frame);
+      out.scrollTop = out.scrollHeight;
+    };
+    const steps = [];
+    // climb: 14 frames, ease-out, breathing hitches at 5/9/13, sweat + pebbles
+    for (let i = 0; i <= 13; i++) {
+      const s = i / 13;
+      const bx = 2 + s * 23, fx = bx - 2.2;
+      steps.push({
+        at: i * 170 + (i >= 5 ? 170 : 0) + (i >= 9 ? 170 : 0),
+        frame: {
+          s, fx, fy: surf(fx),
+          pose: i % 3 === 2 ? "strain" : "push",
+          sweat: i % 3 === 2 && i > 3, pebble: i % 2 === 0 && i > 0
+        }
+      });
+    }
+    const t0 = steps[steps.length - 1].at + 250;
+    // triumph: settle, arms up, sparkles
+    const topBx = 25, topFx = topBx - 1.2;
+    [{ pose: "reach", sparkle: false }, { pose: "triumph", sparkle: true }, { pose: "triumph", sparkle: true }]
+      .forEach((p, k) => steps.push({
+        at: t0 + k * 300,
+        frame: Object.assign({ s: 1, boulderS: 1, fx: topFx, fy: surf(topFx) }, p)
+      }));
+    // fall: 6 accelerating steps, bouncing boulder, dust, watcher left behind
+    const t1 = t0 + 3 * 300 + 200;
+    const durs = [150, 130, 110, 90, 70, 70];
+    let acc = 0;
+    const dust = [];
+    for (let k = 0; k < 6; k++) {
+      acc += durs[k];
+      const bs = 1 - (k + 1) / 6;
+      const bx = 2 + bs * 23;
+      dust.push([bx + 1.5, surf(bx + 1.5) - 1, k % 2 ? "." : "~"]);
+      steps.push({
+        at: t1 + acc,
+        frame: {
+          s: 1, boulderS: bs, hop: k % 2 === 0,
+          fx: topFx, fy: surf(topFx), pose: "watch",
+          dust: dust.slice()
+        }
+      });
+    }
+    // aftermath: impact puffs, slump beside the stone, then the quiet reset
+    const t2 = t1 + acc + 250;
+    const botBx = 2, botFx = botBx + 1.5;
+    steps.push({
+      at: t2,
+      frame: { s: 0, boulderS: 0, fx: topFx, fy: surf(topFx), pose: "watch", dust: dust.slice().concat([[4, 6, "."], [6, 7, "~"], [3, 7, "."]]) }
+    });
+    steps.push({
+      at: t2 + 450,
+      frame: { s: 0, boulderS: 0, fx: botFx, fy: surf(botFx), pose: "sit" }
+    });
+    steps.push({
+      at: t2 + 950,
+      frame: { s: 0, boulderS: 0, fx: botBx - 2.2 + 4, fy: surf(botBx - 2.2 + 4), pose: "slump" }
+    });
+    steps.push({
+      at: t2 + 1450,
+      frame: { s: 0, fx: botBx - 2.2 + 4, fy: surf(botBx - 2.2 + 4), pose: "push" }
+    });
+    steps.forEach(({ at, frame }) => {
+      sisyphusTimers.push(setTimeout(() => show(frame), at));
+    });
+    sisyphusTimers.push(setTimeout(() => {
+      sisyphusBusy = false;
+      termStatus.textContent = "ready";
+      out.scrollTop = out.scrollHeight;
+    }, t2 + 1500));
   }
   function weatherSummary() {
     if (state.wx && state.override === "live")
@@ -442,8 +678,10 @@
     echo.className = "in"; echo.textContent = "$ " + cmd;
     out.appendChild(echo);
     history.unshift(cmd); hIndex = -1;
-    termStatus.textContent = "thinking…";
-    setTimeout(() => { termStatus.textContent = "ready"; }, 250);
+    if (!sisyphusBusy) {
+      termStatus.textContent = "thinking…";
+      setTimeout(() => { if (!sisyphusBusy) termStatus.textContent = "ready"; }, 250);
+    }
 
     const [verbRaw, ...rest] = cmd.split(/\s+/);
     const verb = verbRaw.toLowerCase(), arg = rest.join(" ").trim();
@@ -453,17 +691,15 @@
         print("this console understands:", "ok");
         ["weather [clear|cloud|rain|storm|snow|fog|live] — live NYC sky or honest preview",
          "live — return to live New York weather",
-         "time | date — yours + New York, side by side",
          "calc <expr> — safe pocket calculator, e.g. calc (3+4)*2",
          "dice [NdM] — roll N dice with M sides; e.g. dice 2d6 = two six-sided dice",
          "coin — flip a coin",
          "8ball <question> — a small oracle, locally sourced",
-         "color <css color> — preview it, e.g. color #7df0ff",
          "joke — a nerdy joke, no network",
-         "about-me — one honest snapshot of what your browser reports",
-         "echo <text> — say it back",
-         "clear — wipe the console",
-         "curiosity | 42 — for explorers"
+         "random-portal — open a random corner of the internet",
+         "password [length] — crypto-secure password, auto-copied; e.g. password 20",
+         "sisyphus — he pushes. you watch.",
+         "clear — wipe the console"
         ].forEach(l => print("  " + l));
         break;
       case "weather": {
@@ -478,14 +714,6 @@
         state.override = "live"; store.set("teamremco.sky", "live"); applySky(); fetchWeather();
         print("sky → live New York weather (fetching…).", "ok");
         break;
-      case "time":
-      case "date": {
-        const now = new Date();
-        let nyc = now.toLocaleString();
-        try { nyc = now.toLocaleString(undefined, { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", second: "2-digit" }); } catch {}
-        print(`you: ${now.toLocaleTimeString()} · New York: ${nyc}`, "ok");
-        break;
-      }
       case "calc": {
         if (!arg) { print("usage: calc (3+4)*2 — numbers and + - * / % ^ ( ) only", "err"); break; }
         if (!/^[0-9+\-*/%().\s^]+$/.test(arg)) { print("calc keeps it safe: numbers and + - * / % ^ ( ) only.", "err"); break; }
@@ -509,35 +737,51 @@
         if (!arg) { print("ask it something: 8ball should I ship it?", "err"); break; }
         print(`🔮 ${BALL[Math.floor(Math.random() * BALL.length)]}`, "warn");
         break;
-      case "color": {
-        if (!arg) { print("usage: color #7df0ff — any CSS color", "err"); break; }
-        const probe = document.createElement("div");
-        probe.style.color = "";
-        probe.style.color = arg;
-        if (!probe.style.color) { print(`“${arg}” isn’t a color this browser recognizes.`, "err"); break; }
-        printRich(div => {
-          const sw = document.createElement("span");
-          sw.className = "swatch"; sw.style.background = arg; sw.setAttribute("aria-hidden", "true");
-          div.appendChild(sw);
-          div.appendChild(document.createTextNode(`${arg} → ${probe.style.color} (as the browser sees it)`));
-        });
-        break;
-      }
       case "joke":
         print(JOKES[Math.floor(Math.random() * JOKES.length)], "ok");
         break;
-      case "about-me": snapshot(); break;
-      case "echo":
-        print(arg || "(silence — the instrument echoes it back faithfully)", "dim");
+      case "random-portal":
+      case "portal":
+      case "random": {
+        const p = pickPortal();
+        printRich(div => {
+          div.appendChild(document.createTextNode("portal → "));
+          const a = document.createElement("a");
+          a.href = p.u; a.textContent = p.t || p.u;
+          a.target = "_blank"; a.rel = "noopener";
+          a.style.color = "inherit";
+          div.appendChild(a);
+        });
+        print(p.u, "dim");
+        try { window.open(p.u, "_blank", "noopener"); }
+        catch { print("popup blocked — click the link above.", "err"); }
         break;
-      case "clear": out.innerHTML = ""; break;
-      case "curiosity":
-        print("Curiosity recognized. The map grows wherever you point it.", "ok");
-        print("“We keep the question open longer than is comfortable.” — crew log", "dim");
+      }
+      case "password":
+      case "pass":
+      case "passgen":
+      case "pw": {
+        let len = parseInt(rest[0] || "16", 10);
+        if (!Number.isFinite(len)) { print("usage: password [length] — e.g. password 20 (8–64)", "err"); break; }
+        len = Math.max(8, Math.min(64, len));
+        let pw;
+        try { pw = genPassword(len); }
+        catch { print("this browser blocked secure randomness — no password generated.", "err"); break; }
+        print(pw, "ok");
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(pw).then(
+            () => print(`${len} chars · upper + lower + digit + symbol · copied to clipboard`, "dim"),
+            () => print(`${len} chars · upper + lower + digit + symbol · select to copy (clipboard blocked)`, "dim")
+          );
+        } else {
+          print(`${len} chars · upper + lower + digit + symbol · select to copy`, "dim");
+        }
         break;
-      case "42":
-        print("42: the answer. The question — what should we explore next? — is yours.", "warn");
+      }
+      case "sisyphus":
+        runSisyphus();
         break;
+      case "clear": sisyphusCancel(); out.innerHTML = ""; break;
       default:
         print(`“${verbRaw}” isn’t an instrument yet. Type “help”.`, "err");
     }
