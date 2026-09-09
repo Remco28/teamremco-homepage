@@ -493,22 +493,43 @@
     sisyphusBusy = false;
   }
   function drawSisyphus(o) {
-    // o: { s (0 bottom → 1 peak), pose, boulderS, dust:[], sparkle:bool, sweat:bool, pebble:bool, hop }
-    const W = 30, H = 10;
+    // o: { s (0 bottom → 1 peak), pose, boulderS, dust:[], sparkle:bool, sweat:bool, pebble:bool, hop, spin }
+    const W = 32, H = 10, GROUND = H - 1;
     const g = Array.from({ length: H }, () => Array(W).fill(" "));
-    const surf = (x) => 8 - Math.round(Math.max(0, Math.min(29, x)) * 6 / 29);
+    // Gentle dome: half-cosine rising from the flats (x=6,row 8) to the
+    // summit plateau (x>=21,row 4). Low and rolling on purpose — a steep
+    // cone always reads as stairs in ASCII, a mound reads as a hill.
+    const surf = (x) => {
+      const t = Math.max(0, Math.min(1, (x - 6) / 18));
+      return 8 - Math.round(4 * (0.5 - 0.5 * Math.cos(Math.PI * t)));
+    };
+    const put = (x, y, ch) => {
+      x = Math.round(x); y = Math.round(y);
+      if (y >= 0 && y < H && x >= 0 && x < W && ch !== " ") g[y][x] = ch;
+    };
     // stars + moon (fixed, deterministic)
-    [[3, 0], [9, 1], [15, 0], [21, 1], [27, 0]].forEach(([x, y]) => { g[y][x] = "·"; });
+    [[4, 0], [11, 1], [18, 0], [24, 1], [30, 0]].forEach(([x, y]) => { g[y][x] = "·"; });
     g[0][1] = "☾";
     // peak cairn: the silent goal
-    const px = 27;
-    g[surf(px) - 1][px] = "∴";
-    // hill slope
+    const px = 28;
+    put(px, surf(px) - 1, "∴");
+    // round hill: one char per column, glyph follows local steepness so the
+    // dome eases out of the flats instead of staircasing up a diagonal
     for (let x = 0; x < W; x++) {
       const y = surf(x);
-      g[y][x] = (x >= 25) ? "_" : "/";
+      const steep = surf(x - 1) - surf(x + 1);
+      g[y][x] = steep <= 0 ? "_" : steep === 1 ? "/" : "|";
     }
-    for (let x = 0; x < W; x++) g[H - 1][x] = "_";
+    for (let x = 0; x < W; x++) g[GROUND][x] = "_";
+    // faint earth: sparse deterministic texture below the skyline so the
+    // dome reads as solid mass instead of a staircase outline
+    for (let x = 0; x < W; x++) {
+      for (let y = surf(x) + 1; y < GROUND; y++) {
+        if ((x * 5 + y * 9) % 13 === 0) g[y][x] = "·";
+      }
+    }
+    // grass tufts clinging to the dome (actors walk past them)
+    [[4, '"'], [14, '"'], [30, '"']].forEach(([x, ch]) => put(x, surf(x) - 1, ch));
     // pebble kicked loose underfoot
     if (o.pebble) {
       const fx = Math.round(o.fx), fy = Math.round(o.fy);
@@ -520,11 +541,21 @@
       dx = Math.round(dx); dy = Math.round(dy);
       if (dy >= 0 && dy < H && dx >= 0 && dx < W && g[dy][dx] === " ") g[dy][dx] = ch;
     });
-    // boulder
-    const bx = Math.round(2 + (o.boulderS === undefined ? o.s : o.boulderS) * 23);
-    let by = surf(bx) - 1 + (o.hop ? -1 : 0);
-    by = Math.max(0, Math.min(H - 1, by));
-    if (g[by][bx] !== undefined) g[by][bx] = "O";
+    // boulder: a proper rock, 5 wide × 3 tall. The speck drifts side to
+    // side with `spin`, so the stone visibly rolls instead of sliding.
+    const bx = Math.round(8 + (o.boulderS === undefined ? o.s : o.boulderS) * 17);
+    const by = Math.max(2, Math.min(GROUND, surf(bx) + (o.hop ? -1 : 0)));
+    const speck = (((o.spin || 0) % 3) + 3) % 3 - 1;
+    // hollow the rock first so grass/dust never show through it
+    for (let dx = -1; dx <= 1; dx++) {
+      const x = bx + dx;
+      if (by - 1 >= 0 && by - 1 < H && x >= 0 && x < W) g[by - 1][x] = " ";
+    }
+    put(bx - 1, by - 2, "_"); put(bx, by - 2, "_"); put(bx + 1, by - 2, "_");
+    put(bx - 2, by - 1, "/"); put(bx + speck, by - 1, "·"); put(bx + 2, by - 1, "\\");
+    put(bx - 2, by, "\\");
+    put(bx - 1, by, "_"); put(bx, by, "_"); put(bx + 1, by, "_");
+    put(bx + 2, by, "/");
     // figure, anchored at feet (fx, fy on the slope)
     const fx = Math.round(o.fx), fy = Math.round(o.fy);
     const set = (dx, dy, ch) => {
@@ -565,9 +596,12 @@
     return g.map((r) => r.join("").replace(/\s+$/, "")).join("\n");
   }
   function sisyphusStatic() {
-    const s = 0.45, bx = 2 + s * 23, fx = bx - 2.2;
-    const surf = (x) => 8 - Math.round(x * 6 / 29);
-    return drawSisyphus({ s, fx, fy: surf(fx) });
+    const s = 0.45, bx = 9 + s * 15, fx = bx - 4.4;
+    const surf = (x) => {
+      const t = Math.max(0, Math.min(1, (x - 6) / 18));
+      return 8 - Math.round(4 * (0.5 - 0.5 * Math.cos(Math.PI * t)));
+    };
+    return drawSisyphus({ s, fx, fy: surf(fx), spin: 1 });
   }
   function runSisyphus() {
     if (sisyphusBusy) { print("sisyphus is already pushing.", "dim"); return; }
@@ -588,7 +622,10 @@
     pre.style.margin = "0";
     preWrap.appendChild(pre);
     out.appendChild(preWrap);
-    const surf = (x) => 8 - Math.round(Math.max(0, Math.min(29, x)) * 6 / 29);
+    const surf = (x) => {
+      const t = Math.max(0, Math.min(1, (x - 6) / 18));
+      return 8 - Math.round(4 * (0.5 - 0.5 * Math.cos(Math.PI * t)));
+    };
     const show = (frame) => {
       pre.textContent = drawSisyphus(frame);
       out.scrollTop = out.scrollHeight;
@@ -597,11 +634,11 @@
     // climb: 14 frames, ease-out, breathing hitches at 5/9/13, sweat + pebbles
     for (let i = 0; i <= 13; i++) {
       const s = i / 13;
-      const bx = 2 + s * 23, fx = bx - 2.2;
+      const bx = 9 + s * 15, fx = bx - 4.4;
       steps.push({
         at: i * 170 + (i >= 5 ? 170 : 0) + (i >= 9 ? 170 : 0),
         frame: {
-          s, fx, fy: surf(fx),
+          s, fx, fy: surf(fx), spin: i % 3,
           pose: i % 3 === 2 ? "strain" : "push",
           sweat: i % 3 === 2 && i > 3, pebble: i % 2 === 0 && i > 0
         }
@@ -609,11 +646,11 @@
     }
     const t0 = steps[steps.length - 1].at + 250;
     // triumph: settle, arms up, sparkles
-    const topBx = 25, topFx = topBx - 1.2;
+    const topBx = 24, topFx = 20;
     [{ pose: "reach", sparkle: false }, { pose: "triumph", sparkle: true }, { pose: "triumph", sparkle: true }]
       .forEach((p, k) => steps.push({
         at: t0 + k * 300,
-        frame: Object.assign({ s: 1, boulderS: 1, fx: topFx, fy: surf(topFx) }, p)
+        frame: Object.assign({ s: 1, boulderS: 1, fx: topFx, fy: surf(topFx), spin: 1 }, p)
       }));
     // fall: 6 accelerating steps, bouncing boulder, dust, watcher left behind
     const t1 = t0 + 3 * 300 + 200;
@@ -623,12 +660,12 @@
     for (let k = 0; k < 6; k++) {
       acc += durs[k];
       const bs = 1 - (k + 1) / 6;
-      const bx = 2 + bs * 23;
-      dust.push([bx + 1.5, surf(bx + 1.5) - 1, k % 2 ? "." : "~"]);
+      const bx = 9 + bs * 15;
+      dust.push([bx + 3.5, surf(bx + 3.5) - 1, k % 2 ? "." : "~"]);
       steps.push({
         at: t1 + acc,
         frame: {
-          s: 1, boulderS: bs, hop: k % 2 === 0,
+          s: 1, boulderS: bs, hop: k % 2 === 0, spin: k % 3,
           fx: topFx, fy: surf(topFx), pose: "watch",
           dust: dust.slice()
         }
@@ -636,22 +673,21 @@
     }
     // aftermath: impact puffs, slump beside the stone, then the quiet reset
     const t2 = t1 + acc + 250;
-    const botBx = 2, botFx = botBx + 1.5;
     steps.push({
       at: t2,
-      frame: { s: 0, boulderS: 0, fx: topFx, fy: surf(topFx), pose: "watch", dust: dust.slice().concat([[4, 6, "."], [6, 7, "~"], [3, 7, "."]]) }
+      frame: { s: 0, boulderS: 0, fx: topFx, fy: surf(topFx), pose: "watch", dust: dust.slice().concat([[5, 7, "."], [12, 6, "~"], [7, 7, "."]]) }
     });
     steps.push({
       at: t2 + 450,
-      frame: { s: 0, boulderS: 0, fx: botFx, fy: surf(botFx), pose: "sit" }
+      frame: { s: 0, boulderS: 0, fx: 13, fy: surf(13), pose: "sit", spin: 0 }
     });
     steps.push({
       at: t2 + 950,
-      frame: { s: 0, boulderS: 0, fx: botBx - 2.2 + 4, fy: surf(botBx - 2.2 + 4), pose: "slump" }
+      frame: { s: 0, boulderS: 0, fx: 13, fy: surf(13), pose: "slump", spin: 0 }
     });
     steps.push({
       at: t2 + 1450,
-      frame: { s: 0, fx: botBx - 2.2 + 4, fy: surf(botBx - 2.2 + 4), pose: "push" }
+      frame: { s: 0, fx: 9 - 4.4, fy: surf(9 - 4.4), pose: "push", spin: 0 }
     });
     steps.forEach(({ at, frame }) => {
       sisyphusTimers.push(setTimeout(() => show(frame), at));
