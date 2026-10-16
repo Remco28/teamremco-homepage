@@ -26,12 +26,11 @@
 
   const SKIES = ["clear", "cloud", "rain", "storm", "snow", "fog"];
 
-  const motionOn = () => state.motion === "on" && !prefersReduced.matches ? true : state.motion === "on" && prefersReduced.matches ? false : state.motion === "on";
-  // Simpler truth: explicit toggle, but OS reduced-motion always wins for canvas.
+  // Explicit toggle, but OS reduced-motion always wins for canvas.
   const canvasMotion = () => state.motion === "on" && !prefersReduced.matches;
 
   /* ---------- weather: fixed NYC, Open-Meteo, honest fallback ---------- */
-  const WX_URL = "https://api.open-meteo.com/v1/forecast?latitude=40.7128&longitude=-74.0060&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York";
+  const WX_URL = "https://api.open-meteo.com/v1/forecast?latitude=40.7128&longitude=-74.0060&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York";
   const wxChipText = $("#wxChipText"), skyNote = $("#skyNote"),
         themeColor = $("#themeColor");
 
@@ -88,8 +87,8 @@
       skyNote.textContent = `Previewing “${state.override}” — an honest sketch, not live data. “● Live NYC” returns to real weather.`;
     } else if (state.lastGood) {
       const w = state.lastGood;
-      const when = w._at ? new Date(w._at).toLocaleTimeString() : "earlier";
-      wxChipText.textContent = `NYC ${Math.round(w.temperature_2m)}°F · last seen · offline`;
+      const when = w._at ? new Date(w._at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "earlier";
+      wxChipText.textContent = `NYC ${Math.round(w.temperature_2m)}°F · seen ${when} · offline`;
       skyNote.textContent = "Offline: showing the last seen New York sky, honestly labeled. It will refresh itself when the network returns.";
     } else {
       wxChipText.textContent = "NYC sky: offline sketch";
@@ -126,25 +125,48 @@
   const canvas = $("#sky"), ctx = canvas.getContext("2d");
   let W = 0, H = 0, parts = [], clouds = [], flash = 0, bolt = null, t = 0;
 
+  // What the live reading says beyond the sky type: how hard, which way the wind, how much cloud.
+  // Previews are sketches, so they get middling defaults rather than borrowed live numbers.
+  const HEAVY = { 51: 0.35, 53: 0.5, 55: 0.7, 56: 0.5, 57: 0.7, 61: 0.65, 63: 1, 65: 1.5, 66: 0.65, 67: 1.3,
+    71: 0.6, 73: 1, 75: 1.5, 77: 0.5, 80: 0.7, 81: 1.1, 82: 1.6, 85: 0.8, 86: 1.4, 95: 1.1, 96: 1.3, 99: 1.5 };
+  function traits() {
+    const w = state.override === "live" ? (state.wx || state.lastGood) : null;
+    if (!w) return { heavy: 1, wind: 8, dir: 1, cover: state.sky === "clear" ? 10 : 70, code: null };
+    const deg = Number.isFinite(w.wind_direction_10m) ? w.wind_direction_10m : 270;
+    // Wind blowing from the west carries things east, which is screen-right on a north-up map.
+    const dir = -Math.sin(deg * Math.PI / 180) >= 0 ? 1 : -1;
+    return { heavy: HEAVY[w.weather_code] || 1, wind: w.wind_speed_10m || 0, dir,
+             cover: Number.isFinite(w.cloud_cover) ? w.cloud_cover : 60, code: w.weather_code };
+  }
+  let wx = traits();
+
+  let lastW = 0, lastH = 0;
   function sizeSky() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = window.innerWidth; H = window.innerHeight;
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    seed();
+    // Phones fire resize when the address bar slides; only reseed when the shape really changed,
+    // otherwise rain and snow would restart from scratch on every scroll.
+    if (Math.abs(W - lastW) > 40 || Math.abs(H - lastH) > 160) { lastW = W; lastH = H; seed(); }
   }
   function seed() {
     parts = [];
+    wx = traits();
     const sky = state.sky;
     const night = state.day === "night";
-    // Weather-driven particles only: rain/storm streaks, snowflakes, clear-night stars.
-    // Calm skies get their atmosphere from clouds/fog alone.
-    const n = sky === "snow" ? 160 : sky === "rain" ? 220 : sky === "storm" ? 260 : (sky === "clear" && night) ? 150 : 0;
+    const drizzle = wx.code >= 51 && wx.code <= 57;
+    // Weather-driven particles: rain/storm streaks, snowflakes, stars on clear or broken-cloud nights.
+    const base = sky === "snow" ? 160 : sky === "rain" ? 220 : sky === "storm" ? 260 : 0;
+    const stars = night && (sky === "clear" || (sky === "cloud" && wx.cover < 75)) ? (sky === "clear" ? 150 : 70) : 0;
+    const n = base ? Math.round(base * wx.heavy) : stars;
     for (let i = 0; i < n; i++) {
-      parts.push({ x: Math.random() * W, y: Math.random() * H, z: 0.4 + Math.random() * 0.6, ph: Math.random() * 6.28, len: 10 + Math.random() * 14 });
+      parts.push({ x: Math.random() * W, y: Math.random() * H, z: 0.4 + Math.random() * 0.6, ph: Math.random() * 6.28,
+                   len: drizzle ? 5 + Math.random() * 6 : 10 + Math.random() * 14 });
     }
     clouds = [];
-    const cn = sky === "clear" ? 3 : sky === "fog" ? 8 : 6;
+    const cn = sky === "clear" ? (wx.cover < 15 ? 1 : 3) : sky === "fog" ? 8
+      : sky === "cloud" ? Math.round(3 + wx.cover / 100 * 6) : 6;
     for (let i = 0; i < cn; i++) {
       clouds.push({
         x: Math.random() * W, y: Math.random() * H * 0.6,
@@ -155,6 +177,11 @@
         ].map(([dx, dy, scale]) => ({ dx, dy, scale: scale * (0.88 + Math.random() * 0.2) }))
       });
     }
+  }
+  function cloudAlpha() {
+    if (state.sky === "fog") return 0.33;
+    if (state.sky === "clear") return 0.11;
+    return state.sky === "cloud" ? 0.12 + wx.cover / 100 * 0.14 : 0.22;
   }
   function drawCloud(c, night, alpha) {
     const g = ctx.createRadialGradient(c.x, c.y - c.r * 0.12, 0, c.x, c.y, c.r * 1.12);
@@ -203,9 +230,23 @@
     }
     ctx.restore();
   }
+  function drawMoon(x, y, r, haze) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 5);
+    g.addColorStop(0, `rgba(220,230,255,${0.22 * haze})`); g.addColorStop(1, "rgba(220,230,255,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 5, 0, 6.29); ctx.fill();
+    ctx.save();
+    ctx.fillStyle = `rgba(238,242,255,${0.9 * haze})`;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 6.29); ctx.fill();
+    // Cut a crescent out of the disc so the page behind shows through.
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath(); ctx.arc(x + r * 0.45, y - r * 0.2, r * 0.88, 0, 6.29); ctx.fill();
+    ctx.restore();
+  }
   function drawSkyBackdrop(animated) {
     const night = state.day === "night";
-    if (state.sky === "clear" && !night) {
+    if (state.sky === "clear" && night) {
+      drawMoon(W * 0.84, H * 0.16, Math.min(W, H) * 0.035, 1);
+    } else if (state.sky === "clear") {
       const x = W * 0.84, y = H * 0.16, r = Math.min(W, H) * 0.22;
       const g = ctx.createRadialGradient(x, y, 0, x, y, r);
       const pulse = animated ? 0.25 + Math.sin(t * 0.5) * 0.03 : 0.26;
@@ -225,13 +266,16 @@
       }
       ctx.restore();
     } else if (state.sky === "cloud") {
+      // The sun or moon glows through thinner cloud and fades out under overcast.
+      const glow = Math.max(0, 1 - wx.cover / 110);
       const x = W * 0.76 + (animated ? Math.sin(t * 0.14) * W * 0.035 : 0), y = H * 0.18;
       const g = ctx.createRadialGradient(x, y, 0, x, y, Math.min(W, H) * 0.2);
-      g.addColorStop(0, night ? "rgba(190,211,255,.17)" : "rgba(255,224,154,.18)");
+      g.addColorStop(0, night ? `rgba(190,211,255,${0.06 + 0.14 * glow})` : `rgba(255,224,154,${0.06 + 0.16 * glow})`);
       g.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, Math.min(W, H) * 0.2, 0, 6.29); ctx.fill();
     } else if (state.sky === "fog") {
       const x = W * 0.78, y = H * 0.42, r = Math.min(W, H) * 0.18;
+      if (night) { drawMoon(x, y, Math.min(W, H) * 0.02, 0.45); return; }
       const g = ctx.createRadialGradient(x, y, 0, x, y, r);
       g.addColorStop(0, "rgba(255,206,120,.20)"); g.addColorStop(0.2, "rgba(255,190,100,.08)"); g.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.29); ctx.fill();
@@ -239,11 +283,11 @@
     }
   }
   function drawSkySurface(animated) {
-    if (state.sky === "rain") {
-      const count = 4;
+    if (state.sky === "rain" || state.sky === "storm") {
+      const count = Math.max(2, Math.round(4 * wx.heavy));
       ctx.save(); ctx.strokeStyle = "rgba(198,231,255,.60)"; ctx.lineWidth = 1;
       for (let i = 0; i < count; i++) {
-        const phase = animated ? (t * 0.34 + i * 0.23) % 1 : 0.35;
+        const phase = animated ? (t * 0.34 * wx.heavy + i * 0.23) % 1 : 0.35;
         const x = ((i + 0.5) / count) * W + (animated ? Math.sin(t + i) * 16 : 0);
         const y = H - 18; ctx.globalAlpha = (1 - phase) * 0.5;
         ctx.beginPath(); ctx.arc(x, y, 3 + phase * 11, Math.PI, 2 * Math.PI); ctx.stroke();
@@ -255,76 +299,85 @@
       ctx.quadraticCurveTo(W * 0.74, H - 27, W, H - 8); ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.fill(); ctx.restore();
     }
   }
+  // Rain falls at a fixed pace; wind leans it. Returns px/second.
+  function rainVel(p) {
+    const vy = (4 + p.z * (state.sky === "storm" ? 14 : 9)) * 60 * (wx.code >= 51 && wx.code <= 57 ? 0.6 : 1);
+    const vx = wx.dir * Math.min(wx.wind, 40) * 7 * (0.7 + p.z * 0.3);
+    return [vx, vy];
+  }
+  function drawStars(animated) {
+    ctx.fillStyle = "#fff";
+    for (const p of parts) {
+      const tw = animated ? 0.3 + 0.6 * (0.5 + 0.5 * Math.sin(t * 2 + p.ph)) : 0.85;
+      ctx.globalAlpha = tw * p.z;
+      ctx.fillRect(p.x, p.y, p.z > 0.8 ? 2 : 1, p.z > 0.8 ? 2 : 1);
+    }
+    ctx.globalAlpha = 1;
+  }
+  const hasStars = () => state.day === "night" && (state.sky === "clear" || state.sky === "cloud");
   function drawOnce() {
     ctx.clearRect(0, 0, W, H);
     const night = state.day === "night";
+    if (hasStars()) drawStars(false);
     drawSkyBackdrop(false);
-    for (const c of clouds) {
-      const a = state.sky === "fog" ? 0.35 : state.sky === "clear" ? 0.12 : 0.22;
-      drawCloud(c, night, a);
-    }
-    // stars: clear nights only — a weather-specific sky, not generic particles
-    if (night && state.sky === "clear") {
-      ctx.fillStyle = "#fff";
-      for (const p of parts.slice(0, 120)) {
-        ctx.globalAlpha = 0.25 + p.z * 0.55;
-        ctx.fillRect(p.x, p.y, p.z > 0.8 ? 2 : 1, p.z > 0.8 ? 2 : 1);
-      }
-      ctx.globalAlpha = 1;
-    }
+    for (const c of clouds) drawCloud(c, night, cloudAlpha());
     // precipitation one static frame
     ctx.strokeStyle = state.sky === "snow" ? "rgba(255,255,255,.85)" : "rgba(180,220,255,.5)";
     for (const p of parts) {
       if (state.sky === "snow") { ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.beginPath(); ctx.arc(p.x, p.y, 1 + p.z * 1.6, 0, 6.29); ctx.fill(); }
-      else if (["rain", "storm"].includes(state.sky)) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - 3, p.y + p.len); ctx.stroke(); }
+      else if (state.sky === "rain" || state.sky === "storm") {
+        const [vx, vy] = rainVel(p);
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - vx / vy * p.len, p.y - p.len); ctx.stroke();
+      }
     }
     if (state.sky === "fog") drawFog(false);
     drawSkySurface(false);
   }
-  function loop() {
+  let lastFrame = 0;
+  function loop(now) {
     requestAnimationFrame(loop);
-    if (!canvasMotion() || document.hidden) return;
-    t += 0.016;
+    // Seconds since the last frame, so 60 Hz and 144 Hz screens see the same weather.
+    const dt = Math.min(((now || 0) - lastFrame) / 1000, 0.05);
+    lastFrame = now || 0;
+    if (!canvasMotion() || document.hidden || dt <= 0) return;
+    const f = dt * 60; // old per-frame tuning, scaled to real time
+    t += dt;
     ctx.clearRect(0, 0, W, H);
     const night = state.day === "night";
+    if (hasStars()) drawStars(true);
     drawSkyBackdrop(true);
+    const drift = wx.dir * (0.5 + Math.min(wx.wind, 30) / 12) * (state.sky === "storm" ? 2 : 1);
     for (const c of clouds) {
-      c.x += c.v * (state.sky === "storm" ? 3 : 1);
-      if (c.x - c.r > W) { c.x = -c.r; c.y = Math.random() * H * 0.6; }
-      const a = state.sky === "fog" ? 0.32 : state.sky === "clear" ? 0.10 : 0.2;
-      drawCloud(c, night, a);
-    }
-    if (night && state.sky === "clear") {
-      for (const p of parts.slice(0, 120)) {
-        const tw = 0.3 + 0.6 * (0.5 + 0.5 * Math.sin(t * 2 + p.ph));
-        ctx.globalAlpha = tw * p.z;
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(p.x, p.y, p.z > 0.8 ? 2 : 1, p.z > 0.8 ? 2 : 1);
-      }
-      ctx.globalAlpha = 1;
+      c.x += c.v * drift * f;
+      if (c.x - c.r * 1.2 > W) { c.x = -c.r * 1.2; c.y = Math.random() * H * 0.6; }
+      else if (c.x + c.r * 1.2 < 0) { c.x = W + c.r * 1.2; c.y = Math.random() * H * 0.6; }
+      drawCloud(c, night, cloudAlpha() * 0.92);
     }
     if (state.sky === "snow") {
       ctx.fillStyle = "rgba(255,255,255,.9)";
+      const push = wx.dir * Math.min(wx.wind, 30) * 0.04;
       for (const p of parts) {
-        p.y += (0.5 + p.z) * 0.9; p.x += Math.sin(t + p.ph) * 0.5;
+        p.y += (0.5 + p.z) * 0.9 * f; p.x += (Math.sin(t + p.ph) * 0.5 + push) * f;
         if (p.y > H + 4) { p.y = -4; p.x = Math.random() * W; }
+        if (p.x > W + 4) p.x = -4; else if (p.x < -4) p.x = W + 4;
         ctx.globalAlpha = 0.5 + p.z * 0.5;
         ctx.beginPath(); ctx.arc(p.x, p.y, 1 + p.z * 1.8, 0, 6.29); ctx.fill();
       }
       ctx.globalAlpha = 1;
     } else if (state.sky === "rain" || state.sky === "storm") {
       ctx.strokeStyle = "rgba(175,215,255,.55)"; ctx.lineWidth = 1;
-      const fast = state.sky === "storm" ? 14 : 9;
       for (const p of parts) {
-        p.y += (4 + p.z * fast); p.x -= 1.4;
-        if (p.y > H + 20) { p.y = -20; p.x = Math.random() * (W + 60); }
+        const [vx, vy] = rainVel(p);
+        p.y += vy * dt; p.x += vx * dt;
+        if (p.y > H + 20) { p.y = -20; p.x = Math.random() * (W + 200) - 100; }
+        if (p.x > W + 40) p.x -= W + 80; else if (p.x < -40) p.x += W + 80;
         ctx.globalAlpha = 0.35 + p.z * 0.4;
-        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 2.5, p.y - p.len); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - vx / vy * p.len, p.y - p.len); ctx.stroke();
       }
       ctx.globalAlpha = 1;
       if (state.sky === "storm") {
-        if (!bolt && Math.random() < 0.006) {
-          bolt = { x: Math.random() * W, segs: Array.from({ length: 9 }, () => (Math.random() - 0.5) * 44) };
+        if (!bolt && Math.random() < 0.36 * dt * wx.heavy) {
+          bolt = { x: Math.random() * W, life: 0.06 + Math.random() * 0.1, segs: Array.from({ length: 9 }, () => (Math.random() - 0.5) * 44) };
           flash = 1;
         }
         if (bolt) {
@@ -333,12 +386,11 @@
           ctx.moveTo(bx, by);
           for (const s of bolt.segs) { bx += s; by += H / 9; ctx.lineTo(bx, by); }
           ctx.stroke();
-          if (Math.random() < 0.25) bolt = null;
+          bolt.life -= dt; if (bolt.life <= 0) bolt = null;
         }
-        if (flash > 0) { ctx.fillStyle = `rgba(255,250,220,${flash * 0.16})`; ctx.fillRect(0, 0, W, H); flash -= 0.06; }
+        if (flash > 0) { ctx.fillStyle = `rgba(255,250,220,${flash * 0.16})`; ctx.fillRect(0, 0, W, H); flash -= 3.6 * dt; }
       }
     } else if (state.sky === "fog") drawFog(true);
-    // clear / cloud calm skies: clouds alone carry the atmosphere.
     drawSkySurface(true);
   }
 
@@ -377,92 +429,46 @@
     out.appendChild(div);
     out.scrollTop = out.scrollHeight;
   }
-  const JOKES = [
-    "Why do programmers prefer dark mode? Because light attracts bugs. (The sky agrees tonight.)",
-    "There are only 10 kinds of people: those who understand binary and those who don’t.",
-    "A SQL query walks into a bar, sees two tables and asks… “Mind if I join you?”",
-    "Real programmers count from 0. Rebels count from 0x0.",
-    "I told my computer I needed a break. Now it won’t stop sending me KitKats… via cache.",
-    "Why did the weather API stay calm? It knew how to handle pressure systems."
+  const PROJECTS = [
+    { name: "charmera", url: "https://charmera.teamremco.org/", blurb: "tiny camera, big sheet — photo collages",
+      about: ["Drop up to a dozen tiny Charmera shots, arrange them, pick a theme, export one sheet.",
+              "Every photo stays the same size: no cropping, no empty cells."],
+      tags: ["photo", "camera", "collage", "print"] },
+    { name: "squarehole", url: "https://squarehole.teamremco.org/", blurb: "every shape fits",
+      about: ["A shape-sorter toy where every shape fits the square hole.",
+              "Tap a piece to pick it up, tap again to drop, twist with two fingers to turn it. It can record."],
+      tags: ["toy", "game", "shapes", "puzzle", "kids"] },
+    { name: "abacus", url: "https://abacus.teamremco.org/", blurb: "a tactile soroban for curious minds",
+      about: ["A Japanese soroban you move bead by bead, with sounds and shake-to-clear.",
+              "Practice + − × ÷ on the beads or print a worksheet; step-by-step lessons included."],
+      tags: ["soroban", "math", "arithmetic", "practice", "learning", "kids"] },
+    { name: "crokinole", url: "https://crokinole.teamremco.org/", blurb: "around the board — the flicking game",
+      about: ["The tabletop flicking game: place your disc on the line, flick it through, first to 100.",
+              "Two or four players, teams or free-for-all, tournament scoring, board finishes and your own artwork."],
+      tags: ["game", "board game", "tabletop", "multiplayer"] },
+    { name: "penalties", url: "https://penalties.teamremco.org/", blurb: "USA Fencing penalty chart, quick reference",
+      about: ["An unofficial guide to the USA Fencing penalty chart, with rule citations and diagrams.",
+              "Start from the card the referee showed, browse by situation, or search all entries. The rulebook is the source."],
+      tags: ["fencing", "rules", "referee", "cards", "usa fencing", "reference"] },
+    { name: "newsletter", url: "https://newsletter.teamremco.org/", blurb: "En Garde Gazette — weekly épée newsletter",
+      about: ["The En Garde Gazette, a weekly épée newsletter from Elite Fencers Club, Chatham NJ.",
+              "Issues lie on a desk you can drag about; click a paper to read it, or browse the archive."],
+      tags: ["fencing", "épée", "epee", "club", "news", "chatham"] }
   ];
-  const BALL = [
-    "It is certain.",
-    "It is decidedly so.",
-    "Without a doubt.",
-    "Yes — definitely.",
-    "You may rely on it.",
-    "As I see it, yes.",
-    "Most likely.",
-    "Outlook good.",
-    "Yes.",
-    "The signs point to yes.",
-    "Reply hazy — try again.",
-    "Ask again later.",
-    "Better not tell you now.",
-    "Cannot predict that yet.",
-    "Concentrate and ask again.",
-    "Don’t count on it.",
-    "My reply is no.",
-    "Outlook not so good.",
-    "Very doubtful.",
-    "The answer is hiding in the fog.",
-    "The sky has not made up its mind."
-  ];
-  function diceRoll(spec) {
-    const m = /^(\d{1,2})d(\d{1,4})$/.exec(spec || "1d6");
-    if (!m) return null;
-    const n = Math.min(Number(m[1]) || 1, 20), sides = Math.min(Number(m[2]) || 6, 1000);
-    const rolls = Array.from({ length: n }, () => 1 + Math.floor(Math.random() * sides));
-    return { rolls, total: rolls.reduce((a, b) => a + b, 0), sides };
-  }
-  const PORTALS = [
-    { u: "https://en.wikipedia.org/wiki/Special:Random", t: "Wikipedia — a truly random article" },
-    { u: "https://www.openstreetmap.org", t: "OpenStreetMap — the people's map" },
-    { u: "https://archive.org", t: "Internet Archive — memory of the web" },
-    { u: "https://www.nasa.gov", t: "NASA — look up" },
-    { u: "https://www.bbc.com", t: "BBC — the old front page" },
-    { u: "https://search.marginalia.nu", t: "Marginalia — the small-web search engine" },
-    { u: "https://radio.garden", t: "Radio Garden — spin the globe, hear a station" },
-    { u: "https://pointerpointer.com", t: "Pointer Pointer — it finds your cursor" },
-    { u: "https://strobe.cool", t: "Strobe — do not stare too long" },
-    { u: "https://patatap.com", t: "Patatap — type to make sound" },
-    { u: "https://bongo.cat", t: "Bongo Cat — it plays for you" },
-    { u: "https://binarypiano.com", t: "Binary Piano — 88 keys of math" },
-    { u: "https://copy.sh/v86/", t: "v86 — Linux in your browser" },
-    { u: "https://www.pcjs.org", t: "PCjs — a museum of machines" },
-    { u: "https://crontab.guru", t: "Crontab Guru — for the nerds" },
-    { u: "https://devhints.io", t: "Devhints — cheat sheets" },
-    { u: "https://teachyourselfcs.com", t: "Teach Yourself CS — the long road" },
-    { u: "https://projecteuler.net", t: "Project Euler — math with a keyboard" },
-    { u: "https://adventofcode.com", t: "Advent of Code — December hurts" },
-    { u: "https://overthewire.org/wargames/", t: "OverTheWire — learn security by playing" },
-    { u: "https://www.catb.org/~esr/writings/taoup/html/", t: "The Art of Unix Programming — Eric Raymond" },
-    { u: "https://www.catb.org/esr/faqs/smart-questions.html", t: "How To Ask Questions The Smart Way" },
-    { u: "https://kottke.org", t: "Kottke — blogging since before it was cool" },
-    { u: "https://blog.pkh.me", t: "pkh.me — a quiet engineering blog" },
-    { u: "https://fauux.neocities.org", t: "Fauux — a tiny personal corner" },
-    { u: "https://sadgrl.online", t: "Sadgrl — old-web layouts" },
-    { u: "https://links.yesterweb.org", t: "Yesterweb — a directory of the small web" },
-    { u: "https://www.faqs.org/faqs/", t: "Internet FAQs — the 90s are still here" },
-    { u: "https://textfiles.com/directory.html", t: "Textfiles — Jason Scott's archive" },
-    { u: "https://musicforprogramming.net/latest/", t: "Music for Programming — focus fuel" },
-    { u: "https://www.calligrapher.ai", t: "Calligrapher — type, get handwriting" },
-    { u: "https://asoftmurmur.com", t: "A Soft Murmur — ambient noise mixer" },
-    { u: "https://theuselessweb.com", t: "The Useless Web — the ancestor of this command" },
-    { u: "https://longnow.org", t: "The Long Now — think in 10,000 years" },
-    { u: "https://www.gutenberg.org", t: "Project Gutenberg — free books" },
-    { u: "https://100r.co", t: "Hundred Rabbits — off-grid tech sailors" },
-    { u: "https://weirdorconfusing.com", t: "Weird or Confusing — exactly what it says" },
-    { u: "https://eelslap.com", t: "Eel Slap — slap with an eel" },
-    { u: "https://corgiorgy.com", t: "Corgi Orgy — self-explanatory" },
-    { u: "https://fallingsandgame.com", t: "Falling Sand — a timeless toy" }
-  ];
-  function pickPortal() {
-    // Curated locally. API-ready: later this becomes `fetch(workerUrl)` with
-    // identical return shape { u, t }. No network, no trackers in this version.
-    const i = new Uint32Array(1);
-    crypto.getRandomValues(i);
-    return PORTALS[i[0] % PORTALS.length];
+  const LAUNCHPAD = { name: "launchpad", url: "https://frank-hp-elitedesk-800-g5-desktop-mini.taild9032.ts.net:8766/", blurb: "private launchpad (Tailscale only)",
+    about: ["The Team Remco private launchpad. It only opens on the Team Remco Tailscale network."], tags: ["private", "tailscale"] };
+  const DESTS = [...PROJECTS, LAUNCHPAD];
+  const COMMANDS = ["help", "ls", "cd", "cat", "grep", "weather", "live", "calc", "password", "sisyphus", "clear"];
+  const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  function grepLines(p) { return [p.blurb, ...p.about, "tags: " + p.tags.join(", ")]; }
+  function printLink(p, withBlurb) {
+    printRich(div => {
+      const a = document.createElement("a");
+      a.href = p.url; a.textContent = p.name; a.style.color = "inherit";
+      div.appendChild(document.createTextNode("  "));
+      div.appendChild(a);
+      if (withBlurb) div.appendChild(document.createTextNode("  — " + p.blurb));
+    });
   }
   function genPassword(len) {
     const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ", lower = "abcdefghijkmnopqrstuvwxyz",
@@ -725,19 +731,74 @@
     switch (verb) {
       case "help":
         print("this console understands:", "ok");
-        ["weather [clear|cloud|rain|storm|snow|fog|live] — live NYC sky or honest preview",
+        ["ls — list our projects (ls -l adds a line about each)",
+         "cd <project> — go to it; e.g. cd crokinole (Tab completes names)",
+         "cat <project> — what it is, without leaving; e.g. cat abacus",
+         "grep <word> — find projects by what they do; e.g. grep fencing",
+         "weather [clear|cloud|rain|storm|snow|fog|live] — live NYC sky or honest preview",
          "live — return to live New York weather",
          "calc <expr> — safe pocket calculator, e.g. calc (3+4)*2",
-         "dice [NdM] — roll N dice with M sides; e.g. dice 2d6 = two six-sided dice",
-         "coin — flip a coin",
-         "8ball <question> — a small oracle, locally sourced",
-         "joke — a nerdy joke, no network",
-         "random-portal — open a random corner of the internet",
          "password [length] — crypto-secure password, auto-copied; e.g. password 20",
          "sisyphus — he pushes. you watch.",
          "clear — wipe the console"
         ].forEach(l => print("  " + l));
         break;
+      case "ls": {
+        const long = rest.includes("-l") || rest.includes("-la") || rest.includes("-al");
+        PROJECTS.forEach(p => printLink(p, long));
+        if (long) print("  (cd launchpad → the private launchpad, Tailscale only)", "dim");
+        break;
+      }
+      case "cd": {
+        const name = (rest[0] || "").toLowerCase().replace(/\/+$/, "");
+        if (!name || name === "~" || name === "." || name === "..") { print("already home. try “ls”, then “cd <project>”.", "dim"); break; }
+        const p = DESTS.find(d => d.name === name);
+        if (!p) {
+          const near = DESTS.filter(d => d.name.startsWith(name[0])).map(d => d.name);
+          print(`cd: no such project: ${rest[0]}${near.length ? " — did you mean " + near.join(" or ") + "?" : ". try “ls”."}`, "err");
+          break;
+        }
+        print(`→ ${p.url}`, "ok");
+        termStatus.textContent = "leaving…";
+        setTimeout(() => { location.href = p.url; }, 250);
+        break;
+      }
+      case "cat": {
+        const name = (rest[0] || "").toLowerCase().replace(/\/+$/, "");
+        if (!name) { print("usage: cat <project> — e.g. cat crokinole. “ls” lists them.", "err"); break; }
+        const p = DESTS.find(d => d.name === name);
+        if (!p) { print(`cat: ${rest[0]}: no such project. try “ls”.`, "err"); break; }
+        print(`${p.name} — ${p.blurb}`, "ok");
+        p.about.forEach(l => print("  " + l));
+        print(`  tags: ${p.tags.join(", ")}`, "dim");
+        printRich(div => {
+          div.appendChild(document.createTextNode("  "));
+          const a = document.createElement("a");
+          a.href = p.url; a.textContent = p.url; a.style.color = "inherit";
+          div.appendChild(a);
+          div.appendChild(document.createTextNode(`  (cd ${p.name} to go)`));
+        });
+        break;
+      }
+      case "grep": {
+        const words = rest.filter(w => !w.startsWith("-"));
+        const q = fold(words.join(" ").replace(/^["']|["']$/g, ""));
+        if (!q) { print("usage: grep <word> — e.g. grep fencing, grep game", "err"); break; }
+        const hits = DESTS.filter(p => fold(p.name).includes(q) || grepLines(p).some(l => fold(l).includes(q)));
+        if (!hits.length) { print(`grep: nothing mentions “${words.join(" ")}”. try “ls -l”.`, "warn"); break; }
+        hits.forEach(p => {
+          const tag = p.tags.find(tg => fold(tg).includes(q));
+          const line = [p.blurb, ...p.about].find(l => fold(l).includes(q)) || (tag ? `${p.blurb}  [${tag}]` : p.blurb);
+          printRich(div => {
+            const a = document.createElement("a");
+            a.href = p.url; a.textContent = p.name; a.style.color = "inherit";
+            div.appendChild(document.createTextNode("  "));
+            div.appendChild(a);
+            div.appendChild(document.createTextNode(": " + line));
+          });
+        });
+        break;
+      }
       case "weather": {
         const w = (rest[0] || "").toLowerCase();
         if (!w) { weatherSummary(); break; }
@@ -758,39 +819,6 @@
           if (typeof val !== "number" || !isFinite(val)) throw new Error("nope");
           print(`= ${Math.round(val * 1e10) / 1e10}`, "ok");
         } catch { print("that expression doesn’t compute. try calc (3+4)*2", "err"); }
-        break;
-      }
-      case "dice": {
-        const r = diceRoll(rest[0] || "1d6");
-        if (!r) { print("usage: dice NdM — N dice, each with M sides; e.g. dice 2d6", "err"); break; }
-        print(`🎲 ${r.rolls.join(" · ")}  (total ${r.total} on d${r.sides})`, "ok");
-        break;
-      }
-      case "coin":
-        print(`🪙 ${Math.random() < 0.5 ? "heads" : "tails"}`, "ok");
-        break;
-      case "8ball":
-        if (!arg) { print("ask it something: 8ball should I ship it?", "err"); break; }
-        print(`🔮 ${BALL[Math.floor(Math.random() * BALL.length)]}`, "warn");
-        break;
-      case "joke":
-        print(JOKES[Math.floor(Math.random() * JOKES.length)], "ok");
-        break;
-      case "random-portal":
-      case "portal":
-      case "random": {
-        const p = pickPortal();
-        printRich(div => {
-          div.appendChild(document.createTextNode("portal → "));
-          const a = document.createElement("a");
-          a.href = p.u; a.textContent = p.t || p.u;
-          a.target = "_blank"; a.rel = "noopener";
-          a.style.color = "inherit";
-          div.appendChild(a);
-        });
-        print(p.u, "dim");
-        try { window.open(p.u, "_blank", "noopener"); }
-        catch { print("popup blocked — click the link above.", "err"); }
         break;
       }
       case "password":
@@ -828,12 +856,21 @@
   input.addEventListener("keydown", e => {
     if (e.key === "ArrowUp") { e.preventDefault(); if (history.length) { hIndex = Math.min(hIndex + 1, history.length - 1); input.value = history[hIndex] || ""; } }
     if (e.key === "ArrowDown") { e.preventDefault(); hIndex = Math.max(hIndex - 1, -1); input.value = hIndex === -1 ? "" : history[hIndex]; }
+    if (e.key === "Tab" && input.value.trim()) {
+      const parts = input.value.split(/\s+/);
+      const pool = parts.length > 1 && ["cd", "cat"].includes(parts[0].toLowerCase()) ? DESTS.map(d => d.name) : parts.length === 1 ? COMMANDS : [];
+      const last = parts[parts.length - 1].toLowerCase();
+      const hits = pool.filter(n => n.startsWith(last));
+      if (!hits.length) return;
+      e.preventDefault();
+      if (hits.length === 1) { parts[parts.length - 1] = hits[0]; input.value = parts.join(" ") + " "; }
+      else print(hits.join("  "), "dim");
+    }
   });
   $$(".term-chips button").forEach(b => b.addEventListener("click", () => { input.focus(); run(b.dataset.cmd); }));
   window.addEventListener("keydown", e => {
     if (e.key === "/" && document.activeElement !== input && !e.metaKey && !e.ctrlKey) { e.preventDefault(); input.focus(); }
   });
-  window.addEventListener("resize", () => sizeSky());
 
   /* konami stays: one tiny warp, honestly labeled */
   const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
@@ -855,7 +892,7 @@
     applySky();
     drawOnce();
     requestAnimationFrame(loop);
-    window.addEventListener("resize", () => { if (!canvasMotion()) drawOnce(); });
+    window.addEventListener("resize", () => { sizeSky(); if (!canvasMotion()) drawOnce(); });
     prefersReduced.addEventListener?.("change", () => { renderMotion(); drawOnce(); });
     print("team remco online — one New York sky, one tiny console. type “help”.", "ok");
     print("live sky follows NYC · previews are honestly labeled.", "dim");

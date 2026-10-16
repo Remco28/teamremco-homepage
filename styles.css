@@ -38,7 +38,7 @@ html[data-sky="cloud"][data-day="night"] {
   --accent: #7df0ff; --accent-ink: #06121f;
 }
 html[data-sky="rain"][data-day="day"] {
-  --bg0: #33465f; --bg1: #93a9c4; --ink: #0a1626; --muted: #33465f;
+  --bg0: #5a6d89; --bg1: #a9bbd1; --ink: #0a1626; --muted: #1a2a40;
   --line: rgba(10, 30, 60, 0.28); --card: rgba(255, 255, 255, 0.82);
   --accent: #0b4f86; --accent-ink: #eef7ff;
 }
@@ -151,7 +151,10 @@ html[data-sky="fog"][data-day="day"] .lede { color: var(--muted); }
 .term-output .in { color: var(--accent); }
 .term-output .ok { color: #4ade80; }
 html[data-sky="clear"][data-day="day"] .term-output .ok,
-html[data-sky="cloud"][data-day="day"] .term-output .ok { color: #0a7a3c; }
+html[data-sky="cloud"][data-day="day"] .term-output .ok,
+html[data-sky="rain"][data-day="day"] .term-output .ok,
+html[data-sky="snow"][data-day="day"] .term-output .ok,
+html[data-sky="fog"][data-day="day"] .term-output .ok { color: #0a7a3c; }
 .term-output .warn { color: var(--accent); font-weight: 700; }
 .term-output .err { color: #ff6b81; }
 html[data-sky*=""][data-day="day"] .term-output .err { color: #c22747; }
@@ -167,8 +170,6 @@ html[data-sky*=""][data-day="day"] .term-output .err { color: #c22747; }
 .term-chips button { font-family: var(--mono); font-size: 0.82rem; background: transparent; color: inherit;
   border: 1px solid var(--line); border-radius: 999px; padding: 0.3rem 0.7rem; cursor: pointer; }
 .term-chips button:hover { border-color: var(--accent); }
-.console-note { margin: -0.35rem 1rem 0.85rem; color: var(--muted); font-size: 0.76rem; }
-.console-note code { font-family: var(--mono); color: var(--accent); }
 
 /* presets */
 .presets { border-top: 1px solid var(--line); padding: 0.85rem 1rem 1rem; display: grid; gap: 0.55rem; }

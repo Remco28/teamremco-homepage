@@ -42,23 +42,20 @@
           <span class="term-title">team remco · nyc sky console</span>
           <span class="term-status" id="termStatus">ready</span>
         </div>
-        <div class="term-output" id="termOutput" tabindex="0" aria-label="Console output. Use the input below to type commands."></div>
+        <div class="term-output" id="termOutput" tabindex="0" role="log" aria-live="polite" aria-label="Console output. Use the input below to type commands."></div>
         <form class="term-form" id="termForm" autocomplete="off">
           <label class="visually-hidden" for="consoleInput">Type a console command</label>
           <span class="prompt" aria-hidden="true">$</span>
           <input id="consoleInput" name="command" type="text" spellcheck="false"
-                 autocapitalize="off" autocomplete="off" placeholder="type 'help' — try dice 2d6 (2 dice, 6 sides)" />
+                 autocapitalize="off" autocomplete="off" placeholder="type 'help' to see what this console can do" />
         </form>
         <div class="term-chips" aria-label="Suggested commands">
           <button type="button" data-cmd="help">help</button>
+          <button type="button" data-cmd="ls">ls</button>
           <button type="button" data-cmd="weather">weather</button>
-          <button type="button" data-cmd="dice 2d6">dice 2d6</button>
-          <button type="button" data-cmd="joke">joke</button>
-          <button type="button" data-cmd="random-portal">random-portal</button>
           <button type="button" data-cmd="password">password</button>
           <button type="button" data-cmd="sisyphus">sisyphus</button>
         </div>
-        <p class="console-note">Dice format: <code>NdM</code> means N dice with M sides. Try <code>dice 2d6</code>.</p>
         <div class="presets" role="group" aria-label="Sky presets. Live follows New York weather; the rest are honest previews.">
           <span class="presets-label" id="presetsLabel">Sky:</span>
           <div class="presets-btns" role="group" aria-labelledby="presetsLabel">
@@ -85,8 +82,6 @@
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
-      <p><strong>Team Remco</strong> · explore the machine, expand the mind.</p>
-
       <p>© <span id="year">2026</span> Team Remco · <span class="kbd-hint">Tip: press <kbd>/</kbd> to jump to the console.</span></p>
     </div>
   </footer>
@@ -95,6 +90,6 @@
     <img src="tailscale.svg" alt="" width="24" height="24" />
   </a>
 
-  <script src="app.js?v=2" defer></script>
+  <script src="app.js?v=5" defer></script>
 </body>
 </html>
