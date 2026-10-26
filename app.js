@@ -429,35 +429,19 @@
     out.appendChild(div);
     out.scrollTop = out.scrollHeight;
   }
-  const PROJECTS = [
-    { name: "charmera", url: "https://charmera.teamremco.org/", blurb: "tiny camera, big sheet — photo collages",
-      about: ["Drop up to a dozen tiny Charmera shots, arrange them, pick a theme, export one sheet.",
-              "Every photo stays the same size: no cropping, no empty cells."],
-      tags: ["photo", "camera", "collage", "print"] },
-    { name: "squarehole", url: "https://squarehole.teamremco.org/", blurb: "every shape fits",
-      about: ["A shape-sorter toy where every shape fits the square hole.",
-              "Tap a piece to pick it up, tap again to drop, twist with two fingers to turn it. It can record."],
-      tags: ["toy", "game", "shapes", "puzzle", "kids"] },
-    { name: "abacus", url: "https://abacus.teamremco.org/", blurb: "a tactile soroban for curious minds",
-      about: ["A Japanese soroban you move bead by bead, with sounds and shake-to-clear.",
-              "Practice + − × ÷ on the beads or print a worksheet; step-by-step lessons included."],
-      tags: ["soroban", "math", "arithmetic", "practice", "learning", "kids"] },
-    { name: "crokinole", url: "https://crokinole.teamremco.org/", blurb: "around the board — the flicking game",
-      about: ["The tabletop flicking game: place your disc on the line, flick it through, first to 100.",
-              "Two or four players, teams or free-for-all, tournament scoring, board finishes and your own artwork."],
-      tags: ["game", "board game", "tabletop", "multiplayer"] },
-    { name: "penalties", url: "https://penalties.teamremco.org/", blurb: "USA Fencing penalty chart, quick reference",
-      about: ["An unofficial guide to the USA Fencing penalty chart, with rule citations and diagrams.",
-              "Start from the card the referee showed, browse by situation, or search all entries. The rulebook is the source."],
-      tags: ["fencing", "rules", "referee", "cards", "usa fencing", "reference"] },
-    { name: "newsletter", url: "https://newsletter.teamremco.org/", blurb: "En Garde Gazette — weekly épée newsletter",
-      about: ["The En Garde Gazette, a weekly épée newsletter from Elite Fencers Club, Chatham NJ.",
-              "Issues lie on a desk you can drag about; click a paper to read it, or browse the archive."],
-      tags: ["fencing", "épée", "epee", "club", "news", "chatham"] }
-  ];
+  /* the project list lives in projects.json, shared with the projects page */
+  let PROJECTS = [], projectsFailed = false;
+  const projectsReady = fetch("projects.json", { cache: "no-cache" })
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(d => {
+      PROJECTS = (d.projects || []).filter(p => p.id && p.url)
+        .map(p => ({ ...p, name: p.id, blurb: p.blurb || "", about: p.about || [], tags: p.tags || [] }));
+      DESTS = [...PROJECTS, LAUNCHPAD];
+    })
+    .catch(() => { projectsFailed = true; });
   const LAUNCHPAD = { name: "launchpad", url: "https://frank-hp-elitedesk-800-g5-desktop-mini.taild9032.ts.net:8766/", blurb: "private launchpad (Tailscale only)",
     about: ["The Team Remco private launchpad. It only opens on the Team Remco Tailscale network."], tags: ["private", "tailscale"] };
-  const DESTS = [...PROJECTS, LAUNCHPAD];
+  let DESTS = [LAUNCHPAD];
   const COMMANDS = ["help", "ls", "cd", "cat", "grep", "weather", "live", "calc", "password", "sisyphus", "clear"];
   const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   function grepLines(p) { return [p.blurb, ...p.about, "tags: " + p.tags.join(", ")]; }
@@ -713,36 +697,9 @@
       print("NYC live weather unreachable and no cached reading — offline sketch. Nothing faked; it retries on its own.", "warn");
   }
 
-  function run(raw) {
-    const cmd = raw.trim();
-    if (!cmd) return;
-    const echo = document.createElement("div");
-    echo.className = "in"; echo.textContent = "$ " + cmd;
-    out.appendChild(echo);
-    history.unshift(cmd); hIndex = -1;
-    if (!sisyphusBusy) {
-      termStatus.textContent = "thinking…";
-      setTimeout(() => { if (!sisyphusBusy) termStatus.textContent = "ready"; }, 250);
-    }
-
-    const [verbRaw, ...rest] = cmd.split(/\s+/);
-    const verb = verbRaw.toLowerCase(), arg = rest.join(" ").trim();
-
+  function runProjects(verb, rest) {
+    if (projectsFailed) print("couldn’t load the project list just now, so only launchpad is here. reload to try again.", "warn");
     switch (verb) {
-      case "help":
-        print("this console understands:", "ok");
-        ["ls — list our projects (ls -l adds a line about each)",
-         "cd <project> — go to it; e.g. cd crokinole (Tab completes names)",
-         "cat <project> — what it is, without leaving; e.g. cat abacus",
-         "grep <word> — find projects by what they do; e.g. grep fencing",
-         "weather [clear|cloud|rain|storm|snow|fog|live] — live NYC sky or honest preview",
-         "live — return to live New York weather",
-         "calc <expr> — safe pocket calculator, e.g. calc (3+4)*2",
-         "password [length] — crypto-secure password, auto-copied; e.g. password 20",
-         "sisyphus — he pushes. you watch.",
-         "clear — wipe the console"
-        ].forEach(l => print("  " + l));
-        break;
       case "ls": {
         const long = rest.includes("-l") || rest.includes("-la") || rest.includes("-al");
         PROJECTS.forEach(p => printLink(p, long));
@@ -799,6 +756,45 @@
         });
         break;
       }
+    }
+  }
+
+  function run(raw) {
+    const cmd = raw.trim();
+    if (!cmd) return;
+    const echo = document.createElement("div");
+    echo.className = "in"; echo.textContent = "$ " + cmd;
+    out.appendChild(echo);
+    history.unshift(cmd); hIndex = -1;
+    if (!sisyphusBusy) {
+      termStatus.textContent = "thinking…";
+      setTimeout(() => { if (!sisyphusBusy) termStatus.textContent = "ready"; }, 250);
+    }
+
+    const [verbRaw, ...rest] = cmd.split(/\s+/);
+    const verb = verbRaw.toLowerCase(), arg = rest.join(" ").trim();
+
+    if (["ls", "cd", "cat", "grep"].includes(verb) && !PROJECTS.length && !projectsFailed) {
+      projectsReady.then(() => runProjects(verb, rest));
+      return;
+    }
+    if (["ls", "cd", "cat", "grep"].includes(verb)) { runProjects(verb, rest); out.scrollTop = out.scrollHeight; return; }
+
+    switch (verb) {
+      case "help":
+        print("this console understands:", "ok");
+        ["ls — list our projects (ls -l adds a line about each)",
+         "cd <project> — go to it; e.g. cd crokinole (Tab completes names)",
+         "cat <project> — what it is, without leaving; e.g. cat abacus",
+         "grep <word> — find projects by what they do; e.g. grep fencing",
+         "weather [clear|cloud|rain|storm|snow|fog|live] — live NYC sky or honest preview",
+         "live — return to live New York weather",
+         "calc <expr> — safe pocket calculator, e.g. calc (3+4)*2",
+         "password [length] — crypto-secure password, auto-copied; e.g. password 20",
+         "sisyphus — he pushes. you watch.",
+         "clear — wipe the console"
+        ].forEach(l => print("  " + l));
+        break;
       case "weather": {
         const w = (rest[0] || "").toLowerCase();
         if (!w) { weatherSummary(); break; }

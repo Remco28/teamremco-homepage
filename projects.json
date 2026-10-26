@@ -1,0 +1,125 @@
+{
+  "projects": [
+    {
+      "id": "charmera",
+      "title": "charmera collage",
+      "url": "https://charmera.teamremco.org/",
+      "blurb": "tiny camera, big sheet — photo collages",
+      "about": [
+        "Drop up to a dozen tiny Charmera shots, arrange them, pick a theme, export one sheet.",
+        "Every photo stays the same size: no cropping, no empty cells."
+      ],
+      "tags": [
+        "photo",
+        "camera",
+        "collage",
+        "print"
+      ],
+      "aboutUrl": null,
+      "support": false,
+      "repo": "https://github.com/Remco28/charmera-collage"
+    },
+    {
+      "id": "squarehole",
+      "title": "Square Hole",
+      "url": "https://squarehole.teamremco.org/",
+      "blurb": "every shape fits",
+      "about": [
+        "A shape-sorter toy where every shape fits the square hole.",
+        "Tap a piece to pick it up, tap again to drop, twist with two fingers to turn it. It can record."
+      ],
+      "tags": [
+        "toy",
+        "game",
+        "shapes",
+        "puzzle",
+        "kids"
+      ],
+      "aboutUrl": null,
+      "support": false,
+      "repo": "https://github.com/Remco28/square-hole"
+    },
+    {
+      "id": "abacus",
+      "title": "Soroban",
+      "url": "https://abacus.teamremco.org/",
+      "blurb": "a tactile soroban for curious minds",
+      "about": [
+        "A Japanese soroban you move bead by bead, with sounds and shake-to-clear.",
+        "Practice + − × ÷ on the beads or print a worksheet; step-by-step lessons included."
+      ],
+      "tags": [
+        "soroban",
+        "math",
+        "arithmetic",
+        "practice",
+        "learning",
+        "kids"
+      ],
+      "aboutUrl": null,
+      "support": false,
+      "repo": "https://github.com/Remco28/abacus"
+    },
+    {
+      "id": "crokinole",
+      "title": "Crokinole",
+      "url": "https://crokinole.teamremco.org/",
+      "blurb": "around the board — the flicking game",
+      "about": [
+        "The tabletop flicking game: place your disc on the line, flick it through, first to 100.",
+        "Two or four players, teams or free-for-all, tournament scoring, board finishes and your own artwork."
+      ],
+      "tags": [
+        "game",
+        "board game",
+        "tabletop",
+        "multiplayer"
+      ],
+      "aboutUrl": null,
+      "support": false,
+      "repo": "https://github.com/Remco28/crokinole"
+    },
+    {
+      "id": "penalties",
+      "title": "Fencing Penalties",
+      "url": "https://penalties.teamremco.org/",
+      "blurb": "USA Fencing penalty chart, quick reference",
+      "about": [
+        "An unofficial guide to the USA Fencing penalty chart, with rule citations and diagrams.",
+        "Start from the card the referee showed, browse by situation, or search all entries. The rulebook is the source."
+      ],
+      "tags": [
+        "fencing",
+        "rules",
+        "referee",
+        "cards",
+        "usa fencing",
+        "reference"
+      ],
+      "aboutUrl": null,
+      "support": false,
+      "repo": "https://github.com/Remco28/USAfencing-rules"
+    },
+    {
+      "id": "newsletter",
+      "title": "En Garde Gazette",
+      "url": "https://newsletter.teamremco.org/",
+      "blurb": "En Garde Gazette — weekly épée newsletter",
+      "about": [
+        "The En Garde Gazette, a weekly épée newsletter from Elite Fencers Club, Chatham NJ.",
+        "Issues lie on a desk you can drag about; click a paper to read it, or browse the archive."
+      ],
+      "tags": [
+        "fencing",
+        "épée",
+        "epee",
+        "club",
+        "news",
+        "chatham"
+      ],
+      "aboutUrl": null,
+      "support": false,
+      "repo": "https://github.com/Remco28/fencing-newspaper"
+    }
+  ]
+}
