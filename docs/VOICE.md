@@ -1,6 +1,6 @@
 # Voice: Team Remco site
 
-> **Status:** Confirmed by Frank on 2026-10-26 (voice A: the story is Frank, features are neutral).
+> **Status:** Confirmed by Frank on 2026-10-26 (voice A: the story is Frank, features are neutral). Sample and jargon rule revised at Frank's request the same day: no meaningless numbers.
 > **Covers:** the whole Team Remco site: every project's About page
 > (`<project>.teamremco.org/about/`), the Projects page and the Support page.
 > **Not:** the shared footer (fixed wording, see [about-pages.md](about-pages.md))
@@ -51,7 +51,9 @@ then open it?*
 - Person: *I* in the story only; the feature text uses *you* for the reader and
   no *I*.
 - Sentence length: mostly under 20 words. Contractions are fine.
-- Jargon: no technical terms (canvas, EXIF, localStorage, client-side). Explain
+- Jargon: no technical terms or numbers that mean nothing to the reader (canvas,
+  EXIF, pixel sizes, megapixels). Labels the app itself shows, like PNG and JPG,
+  are fine. Explain
   the app's subject once, early ("Kodak's tiny keychain camera").
 - Spelling: American.
 - Formatting: no exclamation marks or emoji in page text (text inside a
@@ -63,5 +65,4 @@ then open it?*
 ## Sample
 
 Every shot, full size. Nothing is cropped and nothing is shrunk. Every photo
-gets the same size card at the camera's own 1440 × 1080, and the sheet grows to
-fit.
+keeps its full picture, edge to edge, and the sheet grows to fit.
