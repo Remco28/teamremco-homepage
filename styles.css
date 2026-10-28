@@ -1,11 +1,15 @@
 /* Team Remco homepage. Built on assets/brand/css/teamremco.css: use its tokens, no new colors. */
 
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
 body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 main { flex: 1; }
+section[id] { scroll-margin-top: var(--tr-space-6); }
 
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip-link {
@@ -24,79 +28,296 @@ kbd {
   font-size: 0.82em;
 }
 
+/* The four shapes, in the fill colors of the current theme. */
+.fill-sun { fill: var(--tr-sun); }
+.fill-sky { fill: var(--tr-sky); }
+.fill-coral { fill: var(--tr-coral); }
+.fill-leaf { fill: var(--tr-leaf); }
+
 /* ------------------------------------------------------------ header */
 
 .site-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--tr-space-6);
   padding-block: var(--tr-space-6);
 }
 .brand { display: inline-flex; border-radius: var(--tr-radius-sm); }
 .brand img { height: 2rem; width: auto; }
+.site-nav { display: flex; gap: var(--tr-space-6); font-weight: 600; font-size: var(--tr-font-size-sm); }
+.site-nav a { color: var(--tr-fg); text-decoration: none; }
+.site-nav a:hover { color: var(--tr-link); }
+@media (max-width: 560px) { .site-nav { display: none; } }
 
-/* ------------------------------------------------------------ hero */
+/* ------------------------------------------------------------ hero: the table */
 
-/* The photo leaves room on the left (top on phones); the words sit there. */
 .hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: var(--tr-space-8);
+  min-height: min(40rem, calc(100vh - 6rem));
+  padding-block: var(--tr-space-8) var(--tr-space-16);
+}
+.hero h1 {
+  font-size: clamp(var(--tr-font-size-4xl), 5.4vw, var(--tr-font-size-6xl));
+  line-height: var(--tr-line-height-6xl);
+  margin-bottom: var(--tr-space-5);
+}
+.hero .tr-lead { max-width: 32rem; margin-bottom: var(--tr-space-8); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: var(--tr-space-3); margin: 0; }
+
+/* The pieces are placed and moved by app.js; without it they sit where CSS puts them. */
+.table {
+  position: relative;
+  height: clamp(20rem, 38vw, 32rem);
+  border-radius: var(--tr-radius-2xl);
+}
+.piece {
+  --size: clamp(5.5rem, 11vw, 9.5rem);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--size);
+  height: var(--size);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+.piece svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 1px 1px var(--tr-paper-shadow-near)) drop-shadow(0 6px 8px var(--tr-paper-shadow-far));
+  transition: transform var(--tr-duration-base) var(--tr-ease-soft-bounce), filter var(--tr-duration-base) var(--tr-ease);
+  animation: piece-in 700ms var(--tr-ease-soft-bounce) backwards;
+}
+.piece:nth-child(2) svg { animation-delay: 90ms; }
+.piece:nth-child(3) svg { animation-delay: 180ms; }
+.piece:nth-child(4) svg { animation-delay: 270ms; }
+@keyframes piece-in {
+  from { opacity: 0; transform: translateY(-48px) scale(0.9); }
+}
+/* Picked up: a little bigger, a longer shadow. */
+.piece.lifted { cursor: grabbing; z-index: 2; }
+.piece.lifted svg {
+  transform: scale(1.07);
+  filter: drop-shadow(0 2px 2px var(--tr-paper-shadow-near)) drop-shadow(0 18px 18px var(--tr-paper-shadow-far));
+}
+.piece[data-shape="circle"] { transform: translate(12%, 8%) rotate(-6deg); }
+.piece[data-shape="triangle"] { transform: translate(310%, 4%) rotate(9deg); }
+.piece[data-shape="square"] { transform: translate(100%, 200%) rotate(5deg); }
+.piece[data-shape="arch"] { transform: translate(330%, 210%) rotate(-4deg); }
+
+.table-hint {
+  position: absolute;
+  right: var(--tr-space-2);
+  bottom: 0;
+  margin: 0;
+  font-size: var(--tr-font-size-sm);
+  color: var(--tr-fg-muted);
+  pointer-events: none;
+  transition: opacity var(--tr-duration-slow) var(--tr-ease);
+}
+.table.played .table-hint { opacity: 0; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; min-height: 0; padding-bottom: var(--tr-space-10); }
+  .table { height: clamp(16rem, 62vw, 24rem); }
+  .piece { --size: clamp(5rem, 20vw, 8rem); }
+}
+
+/* ------------------------------------------------------------ section heads */
+
+.section-head { margin-bottom: var(--tr-space-6); }
+.section-head h2 { margin-bottom: var(--tr-space-1); }
+.section-head p { margin: 0; }
+
+/* ------------------------------------------------------------ projects: the shape sorter */
+
+.projects { padding-block: var(--tr-space-8) var(--tr-space-16); }
+
+/* The lid: a row of holes. Pick one and its shape drops in. */
+.sorter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tr-space-3);
+  padding: var(--tr-space-4);
+  margin-bottom: var(--tr-space-8);
+  border-radius: var(--tr-radius-2xl);
+  background: var(--tr-surface);
+  border: 1px solid var(--tr-border);
+  width: fit-content;
+  max-width: 100%;
+}
+.hole {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--tr-space-2);
+  min-width: 5.5rem;
+  padding: var(--tr-space-3) var(--tr-space-3) var(--tr-space-2);
+  border: 0;
+  border-radius: var(--tr-radius-lg);
+  background: transparent;
+  color: var(--tr-fg-muted);
+  font: 600 var(--tr-font-size-sm) / 1.2 var(--tr-font-body);
+  cursor: pointer;
+  transition: background-color var(--tr-duration-fast) var(--tr-ease), color var(--tr-duration-fast) var(--tr-ease);
+}
+.hole:hover { background: var(--tr-bg); color: var(--tr-fg); }
+.hole[aria-pressed="true"] { color: var(--tr-fg); }
+
+.hole-cut, .hole-shapes {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+}
+/* The cut-out: the shape in the page color, sunk in with an inner shadow. */
+.hole-cut .cut {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: color-mix(in srgb, #000 7%, var(--tr-bg));
+  filter: drop-shadow(0 1px 0 var(--tr-raised)) drop-shadow(0 -1px 1px var(--tr-paper-shadow-far));
+}
+.hole-cut .peg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateY(-14px) scale(1.15);
+  transition: opacity var(--tr-duration-fast) var(--tr-ease), transform var(--tr-duration-slow) var(--tr-ease-soft-bounce);
+}
+.hole:hover .peg { opacity: 0.45; transform: translateY(-6px) scale(1.05); }
+.hole[aria-pressed="true"] .peg { opacity: 1; transform: none; filter: drop-shadow(0 1px 1px var(--tr-paper-shadow-near)); }
+
+.hole-shapes { grid-template-columns: 1fr 1fr; gap: 2px; padding: 0.3rem; }
+.hole-shapes svg { width: 100%; height: 100%; opacity: 0.4; transition: opacity var(--tr-duration-fast) var(--tr-ease); }
+.hole:hover .hole-shapes svg, .hole[aria-pressed="true"] .hole-shapes svg { opacity: 1; }
+
+/* The cards. */
+.project-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: var(--tr-space-5);
+}
+.project-grid li { display: flex; animation: card-in var(--tr-duration-slow) var(--tr-ease) backwards; }
+@keyframes card-in { from { opacity: 0; transform: translateY(10px); } }
+a.project {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tr-space-3);
+  width: 100%;
+}
+.project-top { display: flex; align-items: center; justify-content: space-between; }
+.project-shape {
+  width: 2.75rem;
+  height: 2.75rem;
+  filter: drop-shadow(0 1px 1px var(--tr-paper-shadow-near)) drop-shadow(0 4px 5px var(--tr-paper-shadow-far));
+  transition: transform var(--tr-duration-slow) var(--tr-ease-soft-bounce);
+}
+.project:hover .project-shape { transform: rotate(-10deg) translateY(-3px); }
+.project h3 { margin: 0; font-size: var(--tr-font-size-xl); line-height: var(--tr-line-height-xl); }
+.project p { margin: 0; color: var(--tr-fg-muted); flex: 1; }
+.project-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-weight: 600;
+  font-size: var(--tr-font-size-sm);
+  color: var(--tr-link);
+}
+.project-go svg { width: 1em; height: 1em; transition: transform var(--tr-duration-fast) var(--tr-ease); }
+.project:hover .project-go svg { transform: translateX(3px); }
+
+.empty { display: grid; grid-template-columns: minmax(0, 28rem) 1fr; align-items: center; gap: var(--tr-space-6); }
+.empty[hidden] { display: none; }
+.empty img { display: block; width: 100%; height: auto; border-radius: var(--tr-radius-xl); }
+.empty p { font-size: var(--tr-font-size-lg); margin: 0; }
+@media (max-width: 700px) { .empty { grid-template-columns: 1fr; } }
+
+/* ------------------------------------------------------------ the photo band */
+
+.band { padding-block: var(--tr-space-8); }
+.band-inner {
   position: relative;
   border-radius: var(--tr-radius-2xl);
   overflow: hidden;
   background: var(--tr-surface);
 }
-.hero-photo img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-}
-.hero-text {
+.band-photo img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 62%; }
+.band-text {
   position: absolute;
   inset: 0 auto 0 0;
-  width: min(30rem, 48%);
+  width: min(28rem, 46%);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: var(--tr-space-12) 0 var(--tr-space-12) var(--tr-space-12);
+  padding: var(--tr-space-12);
 }
-.hero h1 {
-  font-size: clamp(var(--tr-font-size-3xl), 4vw, var(--tr-font-size-5xl));
-  line-height: var(--tr-line-height-5xl);
-  margin-bottom: var(--tr-space-4);
-}
-.hero .tr-lead { color: var(--tr-fg); margin-bottom: var(--tr-space-6); }
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--tr-space-3) var(--tr-space-4);
-  margin: 0;
-}
-.hero-hint { font-size: var(--tr-font-size-sm); }
-
-/* Medium screens: the photo gets too short for the words, so they go below it. */
+.band-text p { font-size: var(--tr-font-size-lg); line-height: var(--tr-line-height-lg); margin: 0; }
 @media (max-width: 960px) {
-  .hero-text { position: static; width: auto; padding: var(--tr-space-8); }
+  .band-text { position: static; width: auto; padding: var(--tr-space-8); }
 }
-
-/* Phones: words first, then a squarer crop of the tall photo. */
 @media (max-width: 700px) {
-  .hero { display: flex; flex-direction: column; border-radius: var(--tr-radius-xl); }
-  .hero-text { order: -1; position: static; width: auto; padding: var(--tr-space-6) var(--tr-space-6) var(--tr-space-2); }
-  .hero-photo img { aspect-ratio: 1 / 1; object-position: 50% 80%; }
-  .hero .tr-lead { font-size: var(--tr-font-size-base); line-height: var(--tr-line-height-base); }
-  .hero-hint { display: none; }
+  .band-inner { display: flex; flex-direction: column; border-radius: var(--tr-radius-xl); }
+  .band-text { order: -1; padding: var(--tr-space-6) var(--tr-space-6) var(--tr-space-2); }
+  .band-text p { font-size: var(--tr-font-size-base); line-height: var(--tr-line-height-base); }
+  .band-photo img { aspect-ratio: 1 / 1; object-position: 50% 80%; }
 }
 @media (max-width: 700px) and (prefers-color-scheme: dark) {
-  .hero-photo img { object-position: 80% 50%; }
+  .band-photo img { object-position: 80% 50%; }
 }
 
-/* ------------------------------------------------------------ console */
+/* ------------------------------------------------------------ the name */
 
-/* Hidden until asked for. Follows the page theme like everything else. */
+.name {
+  display: grid;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--tr-space-12);
+  padding-block: var(--tr-space-16);
+}
+.name-photo img { display: block; width: 100%; height: auto; border-radius: var(--tr-radius-2xl); }
+.name-text .tr-lead { color: var(--tr-fg); font-size: var(--tr-font-size-2xl); line-height: var(--tr-line-height-2xl); max-width: 26rem; }
+@media (max-width: 700px) {
+  .name { grid-template-columns: 1fr; gap: var(--tr-space-6); padding-block: var(--tr-space-10); }
+  .name-photo { max-width: 20rem; }
+}
+
+/* ------------------------------------------------------------ for the curious: the console */
+
+.curious { padding-block: var(--tr-space-8) var(--tr-space-12); }
+.curious-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--tr-space-5);
+  padding: var(--tr-space-6);
+  border-radius: var(--tr-radius-2xl);
+  background: var(--tr-surface);
+  border: 1px solid var(--tr-border);
+}
+.curious-card h2 { font-size: var(--tr-font-size-2xl); line-height: var(--tr-line-height-2xl); margin: 0 0 var(--tr-space-1); }
+.curious-card p { margin: 0; }
+@media (max-width: 700px) {
+  .curious-card { grid-template-columns: 1fr; justify-items: start; }
+}
+
 .console {
-  margin-top: var(--tr-space-8);
+  margin-top: var(--tr-space-5);
   border: 1px solid var(--tr-border);
   border-radius: var(--tr-radius-xl);
   background: var(--tr-surface);
@@ -109,7 +330,6 @@ kbd {
 .console[hidden] { display: none; }
 @keyframes console-in {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
 }
 
 .term-bar {
@@ -207,7 +427,8 @@ kbd {
 /* ------------------------------------------------------------ footer */
 
 .site-footer {
-  padding-block: var(--tr-space-10) var(--tr-space-8);
+  padding-block: var(--tr-space-8);
+  border-top: 1px solid var(--tr-border);
   font-size: var(--tr-font-size-sm);
 }
 .site-footer p { margin: 0; }

@@ -10,12 +10,13 @@ The earlier weather-sky page (live New York weather and the console, `data-sky` 
 
 ## projects.json
 
-The list of projects, read by the homepage console (opened with the hero button or `/`) (`ls`, `cd`, `cat`, `grep`) and, later, the Projects page. Adding a project is one entry here.
+The list of projects, read by the homepage's project cards and its console (opened with a button or `/`) (`ls`, `cd`, `cat`, `grep`) and, later, the Projects page. Adding a project is one entry here.
 
 | Field | What it is |
 | --- | --- |
 | `id` | Short name used by the console, e.g. `cd charmera` |
 | `title` | The project's own name, as its page shows it |
+| `kind` | `app`, `tool`, `fun` or `experimental`: which shape sorts it on the homepage (circle, triangle, square, arch) |
 | `url` | Where the app lives |
 | `blurb` | One line, shown by `ls -l` |
 | `about` | A few sentences, shown by `cat` and searched by `grep` |

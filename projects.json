@@ -2,6 +2,7 @@
   "projects": [
     {
       "id": "charmera",
+      "kind": "tool",
       "title": "charmera collage",
       "url": "https://charmera.teamremco.org/",
       "blurb": "tiny camera, big sheet — photo collages",
@@ -21,6 +22,7 @@
     },
     {
       "id": "squarehole",
+      "kind": "fun",
       "title": "Square Hole",
       "url": "https://squarehole.teamremco.org/",
       "blurb": "every shape fits",
@@ -41,6 +43,7 @@
     },
     {
       "id": "abacus",
+      "kind": "app",
       "title": "Soroban",
       "url": "https://abacus.teamremco.org/",
       "blurb": "a tactile soroban for curious minds",
@@ -62,6 +65,7 @@
     },
     {
       "id": "crokinole",
+      "kind": "fun",
       "title": "Crokinole",
       "url": "https://crokinole.teamremco.org/",
       "blurb": "around the board — the flicking game",
@@ -81,6 +85,7 @@
     },
     {
       "id": "penalties",
+      "kind": "tool",
       "title": "Fencing Penalties",
       "url": "https://penalties.teamremco.org/",
       "blurb": "USA Fencing penalty chart, quick reference",
@@ -102,6 +107,7 @@
     },
     {
       "id": "newsletter",
+      "kind": "app",
       "title": "En Garde Gazette",
       "url": "https://newsletter.teamremco.org/",
       "blurb": "En Garde Gazette — weekly épée newsletter",

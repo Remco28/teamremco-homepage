@@ -438,33 +438,225 @@
   $$(".term-chips button").forEach(b => b.addEventListener("click", () => { input.focus(); run(b.dataset.cmd); }));
 
   /* ---------- open and close ---------- */
-  const panel = $("#console"), openBtn = $("#consoleOpen"), closeBtn = $("#consoleClose");
-  let greeted = false;
-  function openConsole() {
+  const panel = $("#console"), closeBtn = $("#consoleClose"), openers = $$("[data-console-open]");
+  let greeted = false, opener = openers[0];
+  function openConsole(from) {
+    if (from) opener = from;
     if (panel.hidden) {
       panel.hidden = false;
-      openBtn.setAttribute("aria-expanded", "true");
+      openers.forEach(b => b.setAttribute("aria-expanded", "true"));
       if (!greeted) {
         greeted = true;
         print("team remco console. type “help” to see what it can do.", "ok");
         print("“ls” lists our projects; “cd <project>” opens one.", "dim");
       }
-      panel.scrollIntoView({ behavior: prefersReduced.matches ? "auto" : "smooth", block: "nearest" });
     }
+    panel.scrollIntoView({ behavior: prefersReduced.matches ? "auto" : "smooth", block: "center" });
     input.focus({ preventScroll: true });
   }
   function closeConsole() {
     sisyphusCancel();
     termStatus.textContent = "ready";
     panel.hidden = true;
-    openBtn.setAttribute("aria-expanded", "false");
-    openBtn.focus();
+    openers.forEach(b => b.setAttribute("aria-expanded", "false"));
+    opener.focus({ preventScroll: true });
   }
-  openBtn.addEventListener("click", () => (panel.hidden ? openConsole() : closeConsole()));
+  openers.forEach(b => b.addEventListener("click", () => (panel.hidden ? openConsole(b) : closeConsole())));
   closeBtn.addEventListener("click", closeConsole);
   panel.addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); closeConsole(); } });
   window.addEventListener("keydown", e => {
     const t = e.target, typing = t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t.isContentEditable;
     if (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); openConsole(); }
   });
+
+  /* ---------- the projects, sorted by shape ---------- */
+  const KINDS = {
+    app: { shape: "circle", color: "sun", label: "App" },
+    tool: { shape: "triangle", color: "sky", label: "Tool" },
+    fun: { shape: "square", color: "coral", label: "Fun" },
+    experimental: { shape: "arch", color: "leaf", label: "Experiment" }
+  };
+  const grid = $("#projectGrid"), empty = $("#projectsEmpty"), holes = $$(".sorter .hole");
+  const SVG = "http://www.w3.org/2000/svg";
+  function shapeSvg(name, cls) {
+    const svg = document.createElementNS(SVG, "svg");
+    svg.setAttribute("class", cls);
+    svg.setAttribute("aria-hidden", "true");
+    const use = document.createElementNS(SVG, "use");
+    use.setAttribute("href", "#shape-" + name);
+    svg.appendChild(use);
+    return svg;
+  }
+  function arrowSvg() {
+    const svg = document.createElementNS(SVG, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("fill", "none"); svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2"); svg.setAttribute("stroke-linecap", "round"); svg.setAttribute("stroke-linejoin", "round");
+    svg.setAttribute("aria-hidden", "true");
+    svg.innerHTML = '<path d="M5 12h14" /><path d="m12 5 7 7-7 7" />';
+    return svg;
+  }
+  function renderProjects(kind) {
+    grid.textContent = "";
+    if (projectsFailed) {
+      const li = document.createElement("li");
+      li.className = "tr-muted";
+      li.textContent = "We couldn't load the list just now. Reloading the page usually fixes it.";
+      grid.appendChild(li);
+      return;
+    }
+    const list = PROJECTS.filter(p => kind === "all" || p.kind === kind);
+    empty.hidden = list.length > 0;
+    list.forEach((p, i) => {
+      const k = KINDS[p.kind] || KINDS.app;
+      const li = document.createElement("li");
+      li.style.animationDelay = i * 45 + "ms";
+      const a = document.createElement("a");
+      a.className = "tr-card project";
+      a.href = p.aboutUrl || p.url;
+      const top = document.createElement("div");
+      top.className = "project-top";
+      top.appendChild(shapeSvg(k.shape, "project-shape fill-" + k.color));
+      const chip = document.createElement("span");
+      chip.className = "tr-chip tr-chip--" + k.color;
+      chip.textContent = k.label;
+      top.appendChild(chip);
+      const h3 = document.createElement("h3");
+      h3.textContent = p.title || p.id;
+      const text = document.createElement("p");
+      text.textContent = p.about[0] || p.blurb;
+      const go = document.createElement("span");
+      go.className = "project-go";
+      go.append(p.aboutUrl ? "Read about it" : "Open it", arrowSvg());
+      a.append(top, h3, text, go);
+      li.appendChild(a);
+      grid.appendChild(li);
+    });
+  }
+  holes.forEach(h => h.addEventListener("click", () => {
+    holes.forEach(o => o.setAttribute("aria-pressed", String(o === h)));
+    renderProjects(h.dataset.kind);
+  }));
+  projectsReady.then(() => renderProjects("all"));
+
+  /* ---------- the table: four paper shapes to push around ---------- */
+  (function table() {
+    const stage = $("#table");
+    if (!stage) return;
+    // Where each piece starts (fractions of the free space) and its tilt. Loose, never the logo.
+    const START = { circle: [0.04, 0.06, -6], triangle: [0.64, 0.0, 9], square: [0.28, 0.78, 5], arch: [0.92, 0.72, -4] };
+    const FRICTION = 3.2, BOUNCE = 0.5, KNOCK = 0.62, MAX_V = 2600;
+    let W = 0, H = 0, running = false, last = 0;
+    const bodies = $$(".piece", stage).map(el => ({ el, x: 0, y: 0, vx: 0, vy: 0, a: 0, va: 0, s: 0, r: 0, held: null }));
+
+    function measure(first) {
+      W = stage.clientWidth; H = stage.clientHeight;
+      bodies.forEach(b => {
+        b.s = b.el.offsetWidth; b.r = b.s * 0.45;
+        if (first) {
+          const [fx, fy, a] = START[b.el.dataset.shape];
+          b.x = fx * (W - b.s); b.y = fy * (H - b.s); b.a = a;
+        }
+        b.x = Math.min(Math.max(b.x, 0), W - b.s);
+        b.y = Math.min(Math.max(b.y, 0), H - b.s);
+      });
+      draw();
+    }
+    function draw() {
+      bodies.forEach(b => { b.el.style.transform = `translate3d(${b.x}px, ${b.y}px, 0) rotate(${b.a}deg)`; });
+    }
+    function walls(b) {
+      if (b.x < 0) { b.x = 0; b.vx = Math.abs(b.vx) * BOUNCE; b.va -= b.vy * 0.15; }
+      if (b.x > W - b.s) { b.x = W - b.s; b.vx = -Math.abs(b.vx) * BOUNCE; b.va += b.vy * 0.15; }
+      if (b.y < 0) { b.y = 0; b.vy = Math.abs(b.vy) * BOUNCE; b.va += b.vx * 0.15; }
+      if (b.y > H - b.s) { b.y = H - b.s; b.vy = -Math.abs(b.vy) * BOUNCE; b.va -= b.vx * 0.15; }
+    }
+    function collide(p, q) {
+      const dx = (q.x + q.s / 2) - (p.x + p.s / 2), dy = (q.y + q.s / 2) - (p.y + p.s / 2);
+      const d = Math.hypot(dx, dy), min = p.r + q.r;
+      if (d >= min || d === 0) return;
+      const ip = p.held ? 0 : 1, iq = q.held ? 0 : 1, tot = ip + iq;
+      if (!tot) return;
+      const nx = dx / d, ny = dy / d, over = min - d;
+      p.x -= nx * over * ip / tot; p.y -= ny * over * ip / tot;
+      q.x += nx * over * iq / tot; q.y += ny * over * iq / tot;
+      const rv = (q.vx - p.vx) * nx + (q.vy - p.vy) * ny;
+      if (rv >= 0) return;
+      const j = -(1 + KNOCK) * rv / tot;
+      p.vx -= j * nx * ip; p.vy -= j * ny * ip;
+      q.vx += j * nx * iq; q.vy += j * ny * iq;
+      // a glancing knock sets the pieces turning
+      const tv = (q.vx - p.vx) * -ny + (q.vy - p.vy) * nx;
+      p.va -= tv * 0.12 * ip; q.va += tv * 0.12 * iq;
+    }
+    function step(dt) {
+      const f = Math.exp(-FRICTION * dt), fa = Math.exp(-4.5 * dt);
+      bodies.forEach(b => {
+        if (b.held) return;
+        b.x += b.vx * dt; b.y += b.vy * dt; b.a += b.va * dt;
+        b.vx *= f; b.vy *= f; b.va = Math.max(-420, Math.min(420, b.va * fa));
+      });
+      for (let i = 0; i < bodies.length; i++)
+        for (let k = i + 1; k < bodies.length; k++) collide(bodies[i], bodies[k]);
+      bodies.forEach(walls);
+    }
+    function moving() {
+      return bodies.some(b => b.held || Math.hypot(b.vx, b.vy) > 4 || Math.abs(b.va) > 2);
+    }
+    function frame(now) {
+      const dt = Math.min(0.033, (now - last) / 1000 || 0.016);
+      last = now;
+      // two half steps keep fast throws from passing through each other
+      step(dt / 2); step(dt / 2);
+      draw();
+      if (moving()) requestAnimationFrame(frame);
+      else running = false;
+    }
+    function wake() {
+      if (running) return;
+      running = true; last = performance.now();
+      requestAnimationFrame(frame);
+    }
+
+    bodies.forEach(b => {
+      b.el.addEventListener("pointerdown", e => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        b.el.setPointerCapture(e.pointerId);
+        const box = stage.getBoundingClientRect();
+        b.held = { id: e.pointerId, ox: e.clientX - box.left - b.x, oy: e.clientY - box.top - b.y, t: performance.now() };
+        b.vx = b.vy = b.va = 0;
+        b.el.classList.add("lifted");
+        stage.classList.add("played");
+        wake();
+      });
+      b.el.addEventListener("pointermove", e => {
+        if (!b.held || b.held.id !== e.pointerId) return;
+        const box = stage.getBoundingClientRect(), now = performance.now();
+        const dt = Math.max(0.008, (now - b.held.t) / 1000);
+        const nx = Math.min(Math.max(e.clientX - box.left - b.held.ox, 0), W - b.s);
+        const ny = Math.min(Math.max(e.clientY - box.top - b.held.oy, 0), H - b.s);
+        // smoothed hand speed: what the piece keeps when you let go
+        b.vx = b.vx * 0.4 + ((nx - b.x) / dt) * 0.6;
+        b.vy = b.vy * 0.4 + ((ny - b.y) / dt) * 0.6;
+        b.a += (nx - b.x) * 0.08;
+        b.x = nx; b.y = ny; b.held.t = now;
+      });
+      const drop = e => {
+        if (!b.held || b.held.id !== e.pointerId) return;
+        // a hand that stopped before letting go puts the piece down
+        if (performance.now() - b.held.t > 80 || prefersReduced.matches) b.vx = b.vy = 0;
+        const v = Math.hypot(b.vx, b.vy);
+        if (v > MAX_V) { b.vx *= MAX_V / v; b.vy *= MAX_V / v; }
+        b.held = null;
+        b.el.classList.remove("lifted");
+        wake();
+      };
+      b.el.addEventListener("pointerup", drop);
+      b.el.addEventListener("pointercancel", drop);
+    });
+
+    measure(true);
+    let resizeTimer;
+    window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => measure(false), 100); });
+  })();
 })();

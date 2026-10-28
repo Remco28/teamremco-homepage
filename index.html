@@ -22,9 +22,17 @@
   <link rel="preload" href="assets/brand/fonts/web/Baloo2-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/brand/fonts/web/Figtree-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="assets/brand/css/teamremco.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body class="tr-grain">
+  <!-- The four core shapes (teamremco-style shapes/core), filled by CSS so they follow the theme. -->
+  <svg class="visually-hidden" aria-hidden="true">
+    <symbol id="shape-circle" viewBox="-6 -6 112 112"><path d="M50 0a50 50 0 1 1 0 100a50 50 0 1 1 0-100Z" /></symbol>
+    <symbol id="shape-triangle" viewBox="-6 -6 112 112"><path d="M41.06 7.23A10.2 10.2 0 0 1 58.94 7.23L101.68 84.88A10.2 10.2 0 0 1 92.74 100L7.26 100A10.2 10.2 0 0 1-1.68 84.88Z" /></symbol>
+    <symbol id="shape-square" viewBox="-6 -6 112 112"><path d="M0 12A12 12 0 0 1 12 0L88 0A12 12 0 0 1 100 12L100 88A12 12 0 0 1 88 100L12 100A12 12 0 0 1 0 88Z" /></symbol>
+    <symbol id="shape-arch" viewBox="-6 -6 112 112"><path d="M0 50A50 50 0 0 1 100 50V88A12 12 0 0 1 88 100H12A12 12 0 0 1 0 88Z" /></symbol>
+  </svg>
+
   <a class="skip-link" href="#top">Skip to content</a>
 
   <header class="site-header tr-container">
@@ -32,71 +40,169 @@
       <img class="tr-light-only" src="assets/brand/logo/team-remco-horizontal-color.svg" alt="" width="241" height="32" />
       <img class="tr-dark-only" src="assets/brand/logo/team-remco-horizontal-color-dark.svg" alt="" width="241" height="32" />
     </a>
+    <nav class="site-nav" aria-label="Sections">
+      <a href="#projects">Projects</a>
+      <a href="#name">The name</a>
+      <a href="#curious">Console</a>
+    </nav>
   </header>
 
-  <main id="top" class="tr-container">
-    <section class="hero" aria-labelledby="title">
-      <picture class="hero-photo">
-        <source media="(max-width: 700px) and (prefers-color-scheme: dark)" type="image/webp"
-                srcset="assets/brand/photos/hero-night-640.webp 640w, assets/brand/photos/hero-night-960.webp 960w" sizes="100vw" />
-        <source media="(max-width: 700px)" type="image/webp"
-                srcset="assets/brand/photos/hero-mobile-640.webp 640w, assets/brand/photos/hero-mobile-1024.webp 1024w" sizes="100vw" />
-        <source media="(prefers-color-scheme: dark)" type="image/webp"
-                srcset="assets/brand/photos/hero-night-960.webp 960w, assets/brand/photos/hero-night-1536.webp 1536w" sizes="(max-width: 72rem) 100vw, 72rem" />
-        <source type="image/webp"
-                srcset="assets/brand/photos/hero-960.webp 960w, assets/brand/photos/hero-1536.webp 1536w" sizes="(max-width: 72rem) 100vw, 72rem" />
-        <img src="assets/brand/photos/hero-960.jpg"
-             srcset="assets/brand/photos/hero-960.jpg 960w, assets/brand/photos/hero-1536.jpg 1536w"
-             sizes="(max-width: 72rem) 100vw, 72rem" width="1536" height="1024"
-             alt="Four wooden blocks on a table: a yellow cylinder on a red cube, and a blue roof on a green arch." />
-      </picture>
-
+  <main id="top">
+    <!-- Hero: the words, and a table of paper shapes you can push around. -->
+    <section class="hero tr-container" aria-labelledby="title">
       <div class="hero-text">
-        <h1 id="title">Small apps, each one made for a particular itch.</h1>
-        <p class="tr-lead">Team Remco makes apps and tools for a problem we kept running into, or an idea we couldn't put down. They're built for us, and maybe for you, if you have the same itch.</p>
+        <h1 id="title">Small apps, made from simple parts.</h1>
+        <p class="tr-lead">Team Remco makes apps and tools, each one built to scratch a particular itch: a problem we kept running into, or an idea we couldn't put down.</p>
         <p class="hero-actions">
-          <button class="tr-btn" id="consoleOpen" type="button" aria-expanded="false" aria-controls="console">
+          <a class="tr-btn" href="#projects">See what we've made</a>
+          <button class="tr-btn tr-btn--ghost" type="button" data-console-open aria-expanded="false" aria-controls="console">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19h8" /><path d="m4 17 6-6-6-6" /></svg>
             Try the console
           </button>
-          <span class="hero-hint tr-muted">A little game: type to find our projects.</span>
         </p>
+      </div>
+
+      <div class="table" id="table" aria-hidden="true">
+        <div class="piece" data-shape="circle"><svg class="fill-sun"><use href="#shape-circle" /></svg></div>
+        <div class="piece" data-shape="triangle"><svg class="fill-sky"><use href="#shape-triangle" /></svg></div>
+        <div class="piece" data-shape="square"><svg class="fill-coral"><use href="#shape-square" /></svg></div>
+        <div class="piece" data-shape="arch"><svg class="fill-leaf"><use href="#shape-arch" /></svg></div>
+        <p class="table-hint">Go on, move them.</p>
       </div>
     </section>
 
-    <section class="console" id="console" aria-label="Team Remco console" hidden>
-      <div class="term-bar">
-        <span class="dot dot-coral" aria-hidden="true"></span><span class="dot dot-sun" aria-hidden="true"></span><span class="dot dot-leaf" aria-hidden="true"></span>
-        <span class="term-title">team remco console</span>
-        <span class="term-status" id="termStatus">ready</span>
-        <button class="term-close" id="consoleClose" type="button" aria-label="Close the console">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+    <!-- Projects, sorted by shape like a shape-sorter lid. -->
+    <section class="projects tr-container" id="projects" aria-labelledby="projectsTitle">
+      <div class="section-head">
+        <h2 id="projectsTitle">What we've made</h2>
+        <p class="tr-muted">Sort them by shape.</p>
+      </div>
+
+      <div class="sorter" role="group" aria-label="Show projects by kind">
+        <button type="button" class="hole" data-kind="all" aria-pressed="true">
+          <span class="hole-shapes" aria-hidden="true">
+            <svg class="fill-sun"><use href="#shape-circle" /></svg><svg class="fill-sky"><use href="#shape-triangle" /></svg><svg class="fill-coral"><use href="#shape-square" /></svg><svg class="fill-leaf"><use href="#shape-arch" /></svg>
+          </span>
+          <span class="hole-label">All</span>
+        </button>
+        <button type="button" class="hole" data-kind="app" aria-pressed="false">
+          <span class="hole-cut" aria-hidden="true"><svg class="cut"><use href="#shape-circle" /></svg><svg class="peg fill-sun"><use href="#shape-circle" /></svg></span>
+          <span class="hole-label">Apps</span>
+        </button>
+        <button type="button" class="hole" data-kind="tool" aria-pressed="false">
+          <span class="hole-cut" aria-hidden="true"><svg class="cut"><use href="#shape-triangle" /></svg><svg class="peg fill-sky"><use href="#shape-triangle" /></svg></span>
+          <span class="hole-label">Tools</span>
+        </button>
+        <button type="button" class="hole" data-kind="fun" aria-pressed="false">
+          <span class="hole-cut" aria-hidden="true"><svg class="cut"><use href="#shape-square" /></svg><svg class="peg fill-coral"><use href="#shape-square" /></svg></span>
+          <span class="hole-label">Fun</span>
+        </button>
+        <button type="button" class="hole" data-kind="experimental" aria-pressed="false">
+          <span class="hole-cut" aria-hidden="true"><svg class="cut"><use href="#shape-arch" /></svg><svg class="peg fill-leaf"><use href="#shape-arch" /></svg></span>
+          <span class="hole-label">Experiments</span>
         </button>
       </div>
-      <div class="term-output" id="termOutput" tabindex="0" role="log" aria-live="polite" aria-label="Console output. Use the input below to type commands."></div>
-      <form class="term-form" id="termForm" autocomplete="off">
-        <label class="visually-hidden" for="consoleInput">Type a console command</label>
-        <span class="prompt" aria-hidden="true">$</span>
-        <input id="consoleInput" name="command" type="text" spellcheck="false"
-               autocapitalize="off" autocomplete="off" placeholder="type 'help' to see what this console can do" />
-      </form>
-      <div class="term-chips" aria-label="Suggested commands">
-        <button type="button" data-cmd="help">help</button>
-        <button type="button" data-cmd="ls">ls</button>
-        <button type="button" data-cmd="password">password</button>
-        <button type="button" data-cmd="sisyphus">sisyphus</button>
+
+      <ul class="project-grid" id="projectGrid" aria-live="polite"></ul>
+
+      <div class="empty" id="projectsEmpty" hidden>
+        <picture>
+          <source type="image/webp" srcset="assets/brand/photos/work-in-progress-640.webp 640w, assets/brand/photos/work-in-progress-960.webp 960w" sizes="(max-width: 700px) 100vw, 28rem" />
+          <img src="assets/brand/photos/work-in-progress-640.jpg" width="640" height="427" loading="lazy"
+               alt="Wooden blocks, half built: the blue roof waits on the table beside the green arch." />
+        </picture>
+        <p>Nothing here yet. It's still on the workbench.</p>
+      </div>
+
+      <noscript><p class="tr-muted">The project list needs JavaScript. You can also find each one at its own address, like charmera.teamremco.org.</p></noscript>
+    </section>
+
+    <!-- The photo, with room for words on its empty side. -->
+    <section class="band tr-container" aria-labelledby="bandTitle">
+      <div class="band-inner">
+        <picture class="band-photo">
+          <source media="(max-width: 700px) and (prefers-color-scheme: dark)" type="image/webp"
+                  srcset="assets/brand/photos/hero-night-640.webp 640w, assets/brand/photos/hero-night-960.webp 960w" sizes="100vw" />
+          <source media="(max-width: 700px)" type="image/webp"
+                  srcset="assets/brand/photos/hero-mobile-640.webp 640w, assets/brand/photos/hero-mobile-1024.webp 1024w" sizes="100vw" />
+          <source media="(prefers-color-scheme: dark)" type="image/webp"
+                  srcset="assets/brand/photos/hero-night-960.webp 960w, assets/brand/photos/hero-night-1536.webp 1536w" sizes="(max-width: 72rem) 100vw, 72rem" />
+          <source type="image/webp"
+                  srcset="assets/brand/photos/hero-960.webp 960w, assets/brand/photos/hero-1536.webp 1536w" sizes="(max-width: 72rem) 100vw, 72rem" />
+          <img src="assets/brand/photos/hero-960.jpg" loading="lazy"
+               srcset="assets/brand/photos/hero-960.jpg 960w, assets/brand/photos/hero-1536.jpg 1536w"
+               sizes="(max-width: 72rem) 100vw, 72rem" width="1536" height="1024"
+               alt="Four wooden blocks on a table: a yellow cylinder on a red cube, and a blue roof on a green arch." />
+        </picture>
+        <div class="band-text">
+          <h2 id="bandTitle">Not for everyone. Maybe for you.</h2>
+          <p>They're built for us, and maybe for you, if you have the same itch. Some are useful, some are just for fun. All of them are here to try.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- The name. -->
+    <section class="name tr-container" id="name" aria-labelledby="nameTitle">
+      <picture class="name-photo">
+        <source type="image/webp" srcset="assets/brand/photos/mark-real-600.webp 600w, assets/brand/photos/mark-real-1200.webp 1200w" sizes="(max-width: 700px) 100vw, 24rem" />
+        <img src="assets/brand/photos/mark-real-600.jpg" loading="lazy"
+             srcset="assets/brand/photos/mark-real-600.jpg 600w, assets/brand/photos/mark-real-1200.jpg 1200w"
+             sizes="(max-width: 700px) 100vw, 24rem" width="1200" height="1200"
+             alt="Four wooden blocks standing in a row: a yellow disc on a red cube, and a blue triangle on a green arch." />
+      </picture>
+      <div class="name-text">
+        <h2 id="nameTitle">About the name</h2>
+        <p class="tr-lead">The name comes from our two kids' names, put together.</p>
+      </div>
+    </section>
+
+    <!-- The console: a small game, out of the way until someone asks for it. -->
+    <section class="curious tr-container" id="curious" aria-labelledby="curiousTitle">
+      <div class="curious-card">
+        <span class="tr-icon-tile tr-icon-tile--sky" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19h8" /><path d="m4 17 6-6-6-6" /></svg>
+        </span>
+        <div>
+          <h2 id="curiousTitle">For the curious</h2>
+          <p class="tr-muted">There's a small console here. Type a few words to find our projects, make a password, or watch Sisyphus push his rock.</p>
+        </div>
+        <button class="tr-btn tr-btn--secondary" type="button" data-console-open aria-expanded="false" aria-controls="console">Open the console</button>
+      </div>
+
+      <div class="console" id="console" role="region" aria-label="Team Remco console" hidden>
+        <div class="term-bar">
+          <span class="dot dot-coral" aria-hidden="true"></span><span class="dot dot-sun" aria-hidden="true"></span><span class="dot dot-leaf" aria-hidden="true"></span>
+          <span class="term-title">team remco console</span>
+          <span class="term-status" id="termStatus">ready</span>
+          <button class="term-close" id="consoleClose" type="button" aria-label="Close the console">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+          </button>
+        </div>
+        <div class="term-output" id="termOutput" tabindex="0" role="log" aria-live="polite" aria-label="Console output. Use the input below to type commands."></div>
+        <form class="term-form" id="termForm" autocomplete="off">
+          <label class="visually-hidden" for="consoleInput">Type a console command</label>
+          <span class="prompt" aria-hidden="true">$</span>
+          <input id="consoleInput" name="command" type="text" spellcheck="false"
+                 autocapitalize="off" autocomplete="off" placeholder="type 'help' to see what this console can do" />
+        </form>
+        <div class="term-chips" aria-label="Suggested commands">
+          <button type="button" data-cmd="help">help</button>
+          <button type="button" data-cmd="ls">ls</button>
+          <button type="button" data-cmd="password">password</button>
+          <button type="button" data-cmd="sisyphus">sisyphus</button>
+        </div>
       </div>
     </section>
   </main>
 
   <footer class="site-footer tr-container">
-    <p class="tr-muted">© <span id="year">2026</span> Team Remco<span class="kbd-hint"> · Press <kbd>/</kbd> to open the console.</span></p>
+    <p class="tr-muted">© <span id="year">2026</span> Team Remco · <a href="mailto:support@teamremco.org">support@teamremco.org</a><span class="kbd-hint"> · Press <kbd>/</kbd> to open the console.</span></p>
   </footer>
 
   <a class="tailscale-link" href="https://frank-hp-elitedesk-800-g5-desktop-mini.taild9032.ts.net:8766/" aria-label="Open the private Team Remco launchpad" title="Private Team Remco launchpad (Tailscale only)">
     <img src="tailscale.svg" alt="" width="24" height="24" />
   </a>
 
-  <script src="app.js?v=7" defer></script>
+  <script src="app.js?v=8" defer></script>
 </body>
 </html>
