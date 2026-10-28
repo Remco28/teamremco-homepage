@@ -126,8 +126,6 @@ html[data-live="fallback"] .wx-dot, html[data-live="loading"] .wx-dot { backgrou
 
 /* instrument */
 .instrument { display: grid; gap: 1.4rem; padding: 3rem 0 1rem; }
-.eyebrow { display: inline-block; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--muted); border: 1px solid var(--line); background: var(--card); padding: 0.35rem 0.75rem; border-radius: 999px; margin: 0; }
 h1 { font-size: clamp(2.2rem, 6vw, 3.8rem); line-height: 1.02; letter-spacing: -0.03em; margin: 1rem 0 0.5rem; text-wrap: balance; }
 .accent { color: var(--accent); }
 .lede { color: var(--muted); max-width: 38rem; margin: 0; font-size: clamp(1rem, 1.8vw, 1.15rem); }

@@ -81,7 +81,7 @@
     if (state.wx && !preview) {
       const w = state.wx;
       wxChipText.textContent = `NYC ${Math.round(w.temperature_2m)}°F · ${wmoLabel(w.weather_code)} · live`;
-      skyNote.textContent = "Following live New York weather. Pick a preset for an honest preview.";
+      skyNote.textContent = "Following live New York weather.";
     } else if (preview) {
       wxChipText.textContent = `NYC sky preview: ${state.override}`;
       skyNote.textContent = `Previewing “${state.override}” — an honest sketch, not live data. “● Live NYC” returns to real weather.`;
