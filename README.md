@@ -2,9 +2,15 @@
 
 The Team Remco homepage, served at https://teamremco.org.
 
+## Brand
+
+The page is built on the Team Remco brand kit (`teamremco-style`), copied into `assets/brand/`. `assets/brand/BRAND_VERSION` names the kit commit it came from; to update, copy again from the kit (see its `docs/USING.md`) and compare. `styles.css` adds only the page's own layout, using the kit's `--tr-` tokens.
+
+The earlier weather-sky page (live New York weather and the console, `data-sky` themes) is kept at the git tag `weather-sky`.
+
 ## projects.json
 
-The list of projects, read by the homepage console (`ls`, `cd`, `cat`, `grep`) and, later, the Projects page. Adding a project is one entry here.
+The list of projects, read by the homepage console (opened with the hero button or `/`) (`ls`, `cd`, `cat`, `grep`) and, later, the Projects page. Adding a project is one entry here.
 
 | Field | What it is |
 | --- | --- |

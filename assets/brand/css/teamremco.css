@@ -1,0 +1,343 @@
+/* Team Remco base styles and components.
+ *
+ *   <link rel="stylesheet" href="css/teamremco.css">
+ *
+ * Pulls in the fonts and tokens, styles plain HTML (body, headings, links, code),
+ * and adds a few components, all prefixed tr-. Light and dark come from tokens.css;
+ * nothing here needs a dark: variant.
+ */
+
+@import url("../fonts/fonts.css");
+@import url("../tokens/tokens.css");
+
+/* ------------------------------------------------------------ base */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--tr-bg);
+  color: var(--tr-fg);
+  font-family: var(--tr-font-body);
+  font-size: var(--tr-font-size-base);
+  line-height: var(--tr-line-height-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--tr-font-display);
+  font-weight: 600;
+  margin: 0 0 0.4em;
+  text-wrap: balance;
+}
+/* Baloo 2 has tall built-in line spacing, so headings set their own. */
+h1 { font-size: var(--tr-font-size-5xl); line-height: var(--tr-line-height-5xl); letter-spacing: -0.01em; }
+h2 { font-size: var(--tr-font-size-4xl); line-height: var(--tr-line-height-4xl); letter-spacing: -0.005em; }
+h3 { font-size: var(--tr-font-size-2xl); line-height: var(--tr-line-height-2xl); }
+h4 { font-size: var(--tr-font-size-xl); line-height: var(--tr-line-height-xl); }
+
+p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--tr-link);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.18em;
+}
+a:hover {
+  text-decoration-thickness: 2.5px;
+}
+
+:focus-visible {
+  outline: 2.5px solid var(--tr-focus);
+  outline-offset: 2px;
+  border-radius: var(--tr-radius-sm);
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--tr-font-mono);
+  font-size: 0.9em;
+}
+:not(pre) > code {
+  background: var(--tr-mist);
+  padding: 0.1em 0.35em;
+  border-radius: var(--tr-radius-sm);
+}
+pre {
+  background: var(--tr-surface);
+  border: 1px solid var(--tr-border);
+  border-radius: var(--tr-radius-lg);
+  padding: var(--tr-space-4);
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--tr-border);
+  margin: var(--tr-space-8) 0;
+}
+
+::selection {
+  background: var(--tr-sun-tint);
+  color: var(--tr-fg);
+}
+
+/* ------------------------------------------------------------ text helpers */
+
+.tr-eyebrow {
+  font-family: var(--tr-font-body);
+  font-size: var(--tr-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-fg-muted);
+}
+.tr-lead {
+  font-size: var(--tr-font-size-lg);
+  line-height: var(--tr-line-height-lg);
+  color: var(--tr-fg-muted);
+}
+.tr-muted {
+  color: var(--tr-fg-muted);
+}
+
+/* ------------------------------------------------------------ buttons */
+
+.tr-btn {
+  --_bg: var(--tr-primary);
+  --_fg: var(--tr-on-primary);
+  --_border: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 2.75rem;
+  padding: 0 1.15rem;
+  border: 1.5px solid var(--_border);
+  border-radius: var(--tr-radius-md);
+  background: var(--_bg);
+  color: var(--_fg);
+  font: 600 var(--tr-font-size-sm) / 1 var(--tr-font-body);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--tr-duration-fast) var(--tr-ease), box-shadow var(--tr-duration-fast) var(--tr-ease),
+    background-color var(--tr-duration-fast) var(--tr-ease);
+}
+.tr-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--tr-shadow-raised);
+}
+.tr-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.tr-btn svg {
+  width: 1.15em;
+  height: 1.15em;
+}
+.tr-btn--secondary {
+  --_bg: var(--tr-sun-tint);
+  --_fg: var(--tr-fg);
+}
+.tr-btn--ghost {
+  --_bg: transparent;
+  --_fg: var(--tr-fg);
+  --_border: var(--tr-fg);
+}
+.tr-btn--ghost:hover {
+  box-shadow: none;
+  background: var(--tr-surface);
+}
+.tr-btn--sm {
+  min-height: 2.25rem;
+  padding: 0 0.85rem;
+  border-radius: var(--tr-radius-sm);
+}
+.tr-btn:disabled,
+.tr-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ------------------------------------------------------------ inputs */
+
+.tr-input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 1.5px solid var(--tr-border);
+  border-radius: var(--tr-radius-md);
+  background: var(--tr-raised);
+  color: var(--tr-fg);
+  font: 400 var(--tr-font-size-base) / 1.2 var(--tr-font-body);
+  transition: border-color var(--tr-duration-fast) var(--tr-ease);
+}
+.tr-input::placeholder {
+  color: var(--tr-fg-muted);
+}
+.tr-input:hover {
+  border-color: var(--tr-fg-muted);
+}
+.tr-input:focus-visible {
+  outline: none;
+  border-color: var(--tr-focus);
+  box-shadow: 0 0 0 3px var(--tr-sky-tint);
+}
+
+/* A search field: wrap an icon (svg) and an input. */
+.tr-search {
+  position: relative;
+  display: block;
+}
+.tr-search > svg {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  width: 1.15rem;
+  height: 1.15rem;
+  transform: translateY(-50%);
+  color: var(--tr-fg-muted);
+  pointer-events: none;
+}
+.tr-search > .tr-input {
+  padding-left: 2.6rem;
+}
+
+/* ------------------------------------------------------------ chips */
+
+.tr-chip {
+  --_bg: var(--tr-mist);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 1.75rem;
+  padding: 0 0.75rem;
+  border-radius: var(--tr-radius-pill);
+  background: var(--_bg);
+  color: var(--tr-fg);
+  font: 600 var(--tr-font-size-xs) / 1 var(--tr-font-body);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.tr-chip--sun { --_bg: var(--tr-sun-tint); }
+.tr-chip--sky { --_bg: var(--tr-sky-tint); }
+.tr-chip--coral { --_bg: var(--tr-coral-tint); }
+.tr-chip--leaf { --_bg: var(--tr-leaf-tint); }
+/* Optional leading dot in the full-strength color. */
+.tr-chip[class*="tr-chip--"]::before {
+  content: "";
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+}
+.tr-chip--sun::before { background: var(--tr-sun); }
+.tr-chip--sky::before { background: var(--tr-sky); }
+.tr-chip--coral::before { background: var(--tr-coral); }
+.tr-chip--leaf::before { background: var(--tr-leaf); }
+
+/* ------------------------------------------------------------ cards */
+
+.tr-card {
+  background: var(--tr-surface);
+  border: 1px solid var(--tr-border);
+  border-radius: var(--tr-radius-lg);
+  padding: var(--tr-space-6);
+}
+.tr-card--raised {
+  border-color: transparent;
+  box-shadow: var(--tr-shadow-raised);
+}
+a.tr-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: transform var(--tr-duration-base) var(--tr-ease), box-shadow var(--tr-duration-base) var(--tr-ease);
+}
+a.tr-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--tr-shadow-raised);
+}
+
+/* An icon on a soft tile, as in the icon row of the style sheet. */
+.tr-icon-tile {
+  --_bg: var(--tr-mist);
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--tr-radius-lg);
+  background: var(--_bg);
+  color: var(--tr-fg);
+}
+.tr-icon-tile svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.tr-icon-tile--sun { --_bg: var(--tr-sun-tint); }
+.tr-icon-tile--sky { --_bg: var(--tr-sky-tint); }
+.tr-icon-tile--coral { --_bg: var(--tr-coral-tint); }
+.tr-icon-tile--leaf { --_bg: var(--tr-leaf-tint); }
+
+/* ------------------------------------------------------------ cut paper */
+
+/* Shapes that look laid on the page: put on an svg or img of a shape. Not for the logo. */
+.tr-paper {
+  filter: drop-shadow(0 1px 1px var(--tr-paper-shadow-near)) drop-shadow(0 6px 8px var(--tr-paper-shadow-far));
+}
+/* A faint paper grain over any background color. */
+.tr-grain {
+  background-image: var(--tr-paper-grain);
+}
+
+/* ------------------------------------------------------------ layout */
+
+.tr-container {
+  width: min(100% - 2.5rem, 72rem);
+  margin-inline: auto;
+}
+.tr-stack > * + * {
+  margin-top: var(--tr-space-4);
+}
+
+/* ------------------------------------------------------------ theme helpers */
+
+/* Show the right logo file for the current theme:
+ *   <img class="tr-light-only" src="team-remco-horizontal-color.svg">
+ *   <img class="tr-dark-only"  src="team-remco-horizontal-color-dark.svg"> */
+.tr-dark-only { display: none; }
+[data-theme="dark"] .tr-dark-only { display: revert; }
+[data-theme="dark"] .tr-light-only { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tr-dark-only { display: revert; }
+  :root:not([data-theme="light"]) .tr-light-only { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

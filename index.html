@@ -1,95 +1,102 @@
 <!doctype html>
-<html lang="en" data-sky="cloud" data-day="day" data-live="loading">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Team Remco — a place for creation and expression. Live New York sky and a tiny console for local experiments." />
-  <meta name="theme-color" content="#0b1226" id="themeColor" />
-  <title>Team Remco — a place for creation and expression</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <a class="skip-link" href="#consoleInput">Skip to console</a>
-  <canvas id="sky" aria-hidden="true"></canvas>
-  <div class="grain" aria-hidden="true"></div>
+  <meta name="description" content="Team Remco makes small apps and tools, each one built to scratch a particular itch." />
+  <meta name="theme-color" content="#F8F5EE" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#161D29" media="(prefers-color-scheme: dark)" />
+  <title>Team Remco</title>
 
-  <header class="site-header">
-    <div class="wrap header-inner">
-      <a class="brand" href="#top" aria-label="Team Remco — home">
-        <span class="brand-mark" aria-hidden="true">◉</span>
-        <span class="brand-text"><strong class="wordmark">Team Remco</strong></span>
-      </a>
-      <p class="wx-chip" id="wxChip" role="status">
-        <span class="wx-dot" id="wxDot" aria-hidden="true"></span>
-        <span id="wxChipText">reading New York sky…</span>
-      </p>
-      <button class="pill-btn" id="motionBtn" type="button" aria-pressed="true">Motion: on</button>
-    </div>
+  <meta property="og:title" content="Team Remco" />
+  <meta property="og:description" content="Small apps and tools, each one built to scratch a particular itch." />
+  <meta property="og:image" content="https://teamremco.org/assets/brand/photos/share-default-1200.jpg" />
+  <meta property="og:url" content="https://teamremco.org/" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" href="assets/brand/icons/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/brand/icons/favicon.ico" sizes="48x48" />
+  <link rel="apple-touch-icon" href="assets/brand/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="assets/brand/icons/site.webmanifest" />
+
+  <link rel="preload" href="assets/brand/fonts/web/Baloo2-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/brand/fonts/web/Figtree-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/brand/css/teamremco.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body class="tr-grain">
+  <a class="skip-link" href="#top">Skip to content</a>
+
+  <header class="site-header tr-container">
+    <a class="brand" href="/" aria-label="Team Remco, home">
+      <img class="tr-light-only" src="assets/brand/logo/team-remco-horizontal-color.svg" alt="" width="241" height="32" />
+      <img class="tr-dark-only" src="assets/brand/logo/team-remco-horizontal-color-dark.svg" alt="" width="241" height="32" />
+    </a>
   </header>
 
-  <main id="top" class="wrap">
-    <section class="instrument" aria-labelledby="title">
-      <div class="title-block">
-        <p class="eyebrow">A PLACE FOR CREATION AND EXPRESSION</p>
-        <h1 id="title">New York sky, <span class="accent">playable.</span></h1>
-        <p class="lede">This page is styled by the weather in New York. There's a console you can play with to make you feel like a Linux nerd.</p>
+  <main id="top" class="tr-container">
+    <section class="hero" aria-labelledby="title">
+      <picture class="hero-photo">
+        <source media="(max-width: 700px) and (prefers-color-scheme: dark)" type="image/webp"
+                srcset="assets/brand/photos/hero-night-640.webp 640w, assets/brand/photos/hero-night-960.webp 960w" sizes="100vw" />
+        <source media="(max-width: 700px)" type="image/webp"
+                srcset="assets/brand/photos/hero-mobile-640.webp 640w, assets/brand/photos/hero-mobile-1024.webp 1024w" sizes="100vw" />
+        <source media="(prefers-color-scheme: dark)" type="image/webp"
+                srcset="assets/brand/photos/hero-night-960.webp 960w, assets/brand/photos/hero-night-1536.webp 1536w" sizes="(max-width: 72rem) 100vw, 72rem" />
+        <source type="image/webp"
+                srcset="assets/brand/photos/hero-960.webp 960w, assets/brand/photos/hero-1536.webp 1536w" sizes="(max-width: 72rem) 100vw, 72rem" />
+        <img src="assets/brand/photos/hero-960.jpg"
+             srcset="assets/brand/photos/hero-960.jpg 960w, assets/brand/photos/hero-1536.jpg 1536w"
+             sizes="(max-width: 72rem) 100vw, 72rem" width="1536" height="1024"
+             alt="Four wooden blocks on a table: a yellow cylinder on a red cube, and a blue roof on a green arch." />
+      </picture>
 
+      <div class="hero-text">
+        <h1 id="title">Small apps, each one made for a particular itch.</h1>
+        <p class="tr-lead">Team Remco makes apps and tools for a problem we kept running into, or an idea we couldn't put down. They're built for us, and maybe for you, if you have the same itch.</p>
+        <p class="hero-actions">
+          <button class="tr-btn" id="consoleOpen" type="button" aria-expanded="false" aria-controls="console">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19h8" /><path d="m4 17 6-6-6-6" /></svg>
+            Try the console
+          </button>
+          <span class="hero-hint tr-muted">A little game: type to find our projects.</span>
+        </p>
       </div>
-
-      <section class="console" aria-label="Team Remco console">
-        <div class="term-bar">
-          <span class="dot dot-r" aria-hidden="true"></span><span class="dot dot-y" aria-hidden="true"></span><span class="dot dot-g" aria-hidden="true"></span>
-          <span class="term-title">team remco · nyc sky console</span>
-          <span class="term-status" id="termStatus">ready</span>
-        </div>
-        <div class="term-output" id="termOutput" tabindex="0" role="log" aria-live="polite" aria-label="Console output. Use the input below to type commands."></div>
-        <form class="term-form" id="termForm" autocomplete="off">
-          <label class="visually-hidden" for="consoleInput">Type a console command</label>
-          <span class="prompt" aria-hidden="true">$</span>
-          <input id="consoleInput" name="command" type="text" spellcheck="false"
-                 autocapitalize="off" autocomplete="off" placeholder="type 'help' to see what this console can do" />
-        </form>
-        <div class="term-chips" aria-label="Suggested commands">
-          <button type="button" data-cmd="help">help</button>
-          <button type="button" data-cmd="ls">ls</button>
-          <button type="button" data-cmd="weather">weather</button>
-          <button type="button" data-cmd="password">password</button>
-          <button type="button" data-cmd="sisyphus">sisyphus</button>
-        </div>
-        <div class="presets" role="group" aria-label="Sky presets. Live follows New York weather; the rest are honest previews.">
-          <span class="presets-label" id="presetsLabel">Sky:</span>
-          <div class="presets-btns" role="group" aria-labelledby="presetsLabel">
-            <button type="button" data-sky-btn="live" aria-pressed="true">● Live NYC</button>
-            <button type="button" data-sky-btn="clear" aria-pressed="false">Clear</button>
-            <button type="button" data-sky-btn="cloud" aria-pressed="false">Cloud</button>
-            <button type="button" data-sky-btn="rain" aria-pressed="false">Rain</button>
-            <button type="button" data-sky-btn="storm" aria-pressed="false">Storm</button>
-            <button type="button" data-sky-btn="snow" aria-pressed="false">Snow</button>
-            <button type="button" data-sky-btn="fog" aria-pressed="false">Fog</button>
-          </div>
-          <p class="presets-note" id="skyNote">Following live New York weather.</p>
-        </div>
-      </section>
     </section>
 
-    <noscript>
-      <section class="noscript-note" aria-label="Without JavaScript">
-        <h2>A quiet static page.</h2>
-        <p>Without JavaScript you get this calm note instead of the instrument: Team Remco is a place for creation and expression. The live sky and console need JavaScript — everything else on this page is plain static HTML and CSS with no trackers.</p>
-      </section>
-    </noscript>
+    <section class="console" id="console" aria-label="Team Remco console" hidden>
+      <div class="term-bar">
+        <span class="dot dot-coral" aria-hidden="true"></span><span class="dot dot-sun" aria-hidden="true"></span><span class="dot dot-leaf" aria-hidden="true"></span>
+        <span class="term-title">team remco console</span>
+        <span class="term-status" id="termStatus">ready</span>
+        <button class="term-close" id="consoleClose" type="button" aria-label="Close the console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+        </button>
+      </div>
+      <div class="term-output" id="termOutput" tabindex="0" role="log" aria-live="polite" aria-label="Console output. Use the input below to type commands."></div>
+      <form class="term-form" id="termForm" autocomplete="off">
+        <label class="visually-hidden" for="consoleInput">Type a console command</label>
+        <span class="prompt" aria-hidden="true">$</span>
+        <input id="consoleInput" name="command" type="text" spellcheck="false"
+               autocapitalize="off" autocomplete="off" placeholder="type 'help' to see what this console can do" />
+      </form>
+      <div class="term-chips" aria-label="Suggested commands">
+        <button type="button" data-cmd="help">help</button>
+        <button type="button" data-cmd="ls">ls</button>
+        <button type="button" data-cmd="password">password</button>
+        <button type="button" data-cmd="sisyphus">sisyphus</button>
+      </div>
+    </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap footer-inner">
-      <p>© <span id="year">2026</span> Team Remco · <span class="kbd-hint">Tip: press <kbd>/</kbd> to jump to the console.</span></p>
-    </div>
+  <footer class="site-footer tr-container">
+    <p class="tr-muted">© <span id="year">2026</span> Team Remco<span class="kbd-hint"> · Press <kbd>/</kbd> to open the console.</span></p>
   </footer>
 
   <a class="tailscale-link" href="https://frank-hp-elitedesk-800-g5-desktop-mini.taild9032.ts.net:8766/" aria-label="Open the private Team Remco launchpad" title="Private Team Remco launchpad (Tailscale only)">
     <img src="tailscale.svg" alt="" width="24" height="24" />
   </a>
 
-  <script src="app.js?v=6" defer></script>
+  <script src="app.js?v=7" defer></script>
 </body>
 </html>
