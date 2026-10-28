@@ -1,6 +1,6 @@
 # Voice: Team Remco site
 
-> **Status:** Confirmed by Frank on 2026-10-26 (voice A: the story is Frank, features are neutral). Sample and jargon rule revised at Frank's request the same day: no meaningless numbers.
+> **Status:** Confirmed by Frank on 2026-10-26. Sample and jargon rule revised at Frank's request the same day: no meaningless numbers. Changed on 2026-10-28: the story is told as *we*, not *I*, to match the brand voice (teamremco-style `docs/VOICE.md`).
 > **Covers:** the whole Team Remco site: every project's About page
 > (`<project>.teamremco.org/about/`), the Projects page and the Support page.
 > **Not:** the shared footer (fixed wording, see [about-pages.md](about-pages.md))
@@ -12,12 +12,12 @@
 
 Two voices on one page:
 
-- **The story** is Frank, in the first person (*I*): someone who makes these
-  apps for their own use and shares them. Their words come from a voice
-  recording, lightly cleaned up.
-- **The features and how-to** describe the app plainly, with no *I*: what it
+- **The story** is Team Remco, as *we*: the people who make these apps for
+  their own use and share them. The words come from Frank's voice recording,
+  lightly cleaned up and turned from *I* to *we*.
+- **The features and how-to** describe the app plainly, with no *we*: what it
   does and how to use it. Pages without a story (Projects, Support) use this
-  plain voice too, with *I* only where Frank speaks personally, such as the
+  plain voice too, with *we* where Team Remco speaks, such as the
   "no guarantees" line.
 
 ## Audience
@@ -33,7 +33,7 @@ Two voices on one page:
 
 ## Purpose
 
-*Can the reader say why Frank made this app and what they can do with it, and
+*Can the reader say why we made this app and what they can do with it, and
 then open it?*
 
 ## Tone and stance
@@ -48,8 +48,8 @@ then open it?*
 
 ## Style rules
 
-- Person: *I* in the story only; the feature text uses *you* for the reader and
-  no *I*.
+- Person: *we* for Team Remco, never *I*; the feature text uses *you* for the
+  reader.
 - Sentence length: mostly under 20 words. Contractions are fine.
 - Jargon: no technical terms or numbers that mean nothing to the reader (canvas,
   EXIF, pixel sizes, megapixels). Labels the app itself shows, like PNG and JPG,

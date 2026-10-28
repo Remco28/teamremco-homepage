@@ -76,7 +76,7 @@ Same wording on every page; only the project name and links change.
 - The project's "about · support" link pair; support goes to
   `teamremco.org/support?for=<project>`.
 - The license line: "Free to use, and free to build on for your own use.
-  Commercial use? Ask me." linking to the repo's LICENSE.md, with
+  Commercial use? Ask us." linking to the repo's LICENSE.md, with
   support@teamremco.org as the contact.
 - A link to all projects (`teamremco.org/projects`) and to the source repo.
 - "Made by Team Remco" and a last-updated date.
