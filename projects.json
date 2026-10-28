@@ -5,6 +5,7 @@
       "title": "charmera collage",
       "url": "https://charmera.teamremco.org/",
       "blurb": "tiny camera, big sheet — photo collages",
+      "spark": "Kodak made a tiny keychain camera that takes terrible pictures.",
       "about": [
         "Drop up to a dozen tiny Charmera shots, arrange them, pick a theme, export one sheet.",
         "Every photo stays the same size: no cropping, no empty cells."
@@ -20,30 +21,31 @@
       "repo": "https://github.com/Remco28/charmera-collage"
     },
     {
-      "id": "squarehole",
-      "title": "Square Hole",
-      "url": "https://squarehole.teamremco.org/",
-      "blurb": "every shape fits",
+      "id": "crokinole",
+      "title": "Crokinole",
+      "url": "https://crokinole.teamremco.org/",
+      "blurb": "around the board — the flicking game",
+      "spark": "A board game where you flick wooden discs at the middle.",
       "about": [
-        "A shape-sorter toy where every shape fits the square hole.",
-        "Tap a piece to pick it up, tap again to drop, twist with two fingers to turn it. It can record."
+        "The tabletop flicking game: place your disc on the line, flick it through, first to 100.",
+        "Two or four players, teams or free-for-all, tournament scoring, board finishes and your own artwork."
       ],
       "tags": [
-        "toy",
         "game",
-        "shapes",
-        "puzzle",
-        "kids"
+        "board game",
+        "tabletop",
+        "multiplayer"
       ],
       "aboutUrl": null,
       "support": false,
-      "repo": "https://github.com/Remco28/square-hole"
+      "repo": "https://github.com/Remco28/crokinole"
     },
     {
       "id": "abacus",
       "title": "Soroban",
       "url": "https://abacus.teamremco.org/",
       "blurb": "a tactile soroban for curious minds",
+      "spark": "A Japanese abacus you move one bead at a time.",
       "about": [
         "A Japanese soroban you move bead by bead, with sounds and shake-to-clear.",
         "Practice + − × ÷ on the beads or print a worksheet; step-by-step lessons included."
@@ -61,29 +63,32 @@
       "repo": "https://github.com/Remco28/abacus"
     },
     {
-      "id": "crokinole",
-      "title": "Crokinole",
-      "url": "https://crokinole.teamremco.org/",
-      "blurb": "around the board — the flicking game",
+      "id": "squarehole",
+      "title": "Square Hole",
+      "url": "https://squarehole.teamremco.org/",
+      "blurb": "every shape fits",
+      "spark": "What if every shape fit in the square hole?",
       "about": [
-        "The tabletop flicking game: place your disc on the line, flick it through, first to 100.",
-        "Two or four players, teams or free-for-all, tournament scoring, board finishes and your own artwork."
+        "A shape-sorter toy where every shape fits the square hole.",
+        "Tap a piece to pick it up, tap again to drop, twist with two fingers to turn it. It can record."
       ],
       "tags": [
+        "toy",
         "game",
-        "board game",
-        "tabletop",
-        "multiplayer"
+        "shapes",
+        "puzzle",
+        "kids"
       ],
       "aboutUrl": null,
       "support": false,
-      "repo": "https://github.com/Remco28/crokinole"
+      "repo": "https://github.com/Remco28/square-hole"
     },
     {
       "id": "penalties",
       "title": "Fencing Penalties",
       "url": "https://penalties.teamremco.org/",
       "blurb": "USA Fencing penalty chart, quick reference",
+      "spark": "The referee holds up a card. What was it for?",
       "about": [
         "An unofficial guide to the USA Fencing penalty chart, with rule citations and diagrams.",
         "Start from the card the referee showed, browse by situation, or search all entries. The rulebook is the source."
@@ -101,10 +106,34 @@
       "repo": "https://github.com/Remco28/USAfencing-rules"
     },
     {
+      "id": "thinkspace",
+      "title": "Thinkspace",
+      "url": "https://github.com/Remco28/thinkspace",
+      "blurb": "a quick place to show someone what you mean",
+      "spark": "Paint was too thin and GIMP was too slow.",
+      "about": [
+        "Paste a screenshot or a photo, draw an arrow at the part that matters, fade one option, hide another, and send the result.",
+        "A desktop app for Linux and Windows."
+      ],
+      "tags": [
+        "drawing",
+        "screenshots",
+        "diagrams",
+        "desktop",
+        "linux",
+        "windows"
+      ],
+      "aboutUrl": null,
+      "support": false,
+      "repo": "https://github.com/Remco28/thinkspace",
+      "desktop": "Linux and Windows"
+    },
+    {
       "id": "newsletter",
       "title": "En Garde Gazette",
       "url": "https://newsletter.teamremco.org/",
       "blurb": "En Garde Gazette — weekly épée newsletter",
+      "spark": "A fencing club with its own weekly newspaper.",
       "about": [
         "The En Garde Gazette, a weekly épée newsletter from Elite Fencers Club, Chatham NJ.",
         "Issues lie on a desk you can drag about; click a paper to read it, or browse the archive."
@@ -120,6 +149,49 @@
       "aboutUrl": null,
       "support": false,
       "repo": "https://github.com/Remco28/fencing-newspaper"
+    },
+    {
+      "id": "poser",
+      "title": "Fencing Poser",
+      "url": "https://remco28.github.io/fencing-poser/",
+      "blurb": "a wooden mannequin for fencing coaches",
+      "spark": "What if a fencing coach had a wooden mannequin?",
+      "about": [
+        "Pose two 3D fencers on a to-scale piste, save each moment of an action as a step, and play the combination from any angle.",
+        "Students get a read-only link they can open on a phone."
+      ],
+      "tags": [
+        "fencing",
+        "coaching",
+        "3d",
+        "épée",
+        "epee"
+      ],
+      "aboutUrl": null,
+      "support": false,
+      "repo": "https://github.com/Remco28/fencing-poser"
+    },
+    {
+      "id": "dogspeak",
+      "title": "Dogspeak",
+      "url": "https://github.com/Remco28/dogspeak",
+      "blurb": "talk freely, get a clear prompt",
+      "spark": "Talk freely, get a clear prompt.",
+      "about": [
+        "A dictation scratchpad for Linux: speak the way you think, and get text you can edit and paste anywhere.",
+        "Speech recognition runs on your own computer."
+      ],
+      "tags": [
+        "dictation",
+        "speech",
+        "prompts",
+        "desktop",
+        "linux"
+      ],
+      "aboutUrl": null,
+      "support": false,
+      "repo": "https://github.com/Remco28/dogspeak",
+      "desktop": "Linux"
     }
   ]
 }
