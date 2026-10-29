@@ -281,22 +281,6 @@ a.project {
   .band-photo img { object-position: 80% 50%; }
 }
 
-/* ------------------------------------------------------------ the name */
-
-.name {
-  display: grid;
-  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
-  align-items: center;
-  gap: var(--tr-space-12);
-  padding-block: var(--tr-space-16);
-}
-.name-photo img { display: block; width: 100%; height: auto; border-radius: var(--tr-radius-2xl); }
-.name-text .tr-lead { color: var(--tr-fg); font-size: var(--tr-font-size-2xl); line-height: var(--tr-line-height-2xl); max-width: 26rem; }
-@media (max-width: 700px) {
-  .name { grid-template-columns: 1fr; gap: var(--tr-space-6); padding-block: var(--tr-space-10); }
-  .name-photo { max-width: 20rem; }
-}
-
 /* ------------------------------------------------------------ for the curious: the console */
 
 .curious { padding-block: var(--tr-space-8) var(--tr-space-12); }
@@ -427,6 +411,10 @@ a.project {
 /* ------------------------------------------------------------ footer */
 
 .site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tr-space-4);
   padding-block: var(--tr-space-8);
   border-top: 1px solid var(--tr-border);
   font-size: var(--tr-font-size-sm);
@@ -434,12 +422,9 @@ a.project {
 .site-footer p { margin: 0; }
 @media (hover: none) { .kbd-hint { display: none; } }
 
-/* The private launchpad: quiet, bottom right. */
+/* The private launchpad: quiet, at the end of the footer. */
 .tailscale-link {
-  position: fixed;
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
-  z-index: 20;
+  flex: none;
   display: grid;
   place-items: center;
   width: 2.5rem;

@@ -22,7 +22,7 @@
   <link rel="preload" href="assets/brand/fonts/web/Baloo2-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/brand/fonts/web/Figtree-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="assets/brand/css/teamremco.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=8" />
+  <link rel="stylesheet" href="styles.css?v=9" />
 </head>
 <body class="tr-grain">
   <!-- The four core shapes (teamremco-style shapes/core), filled by CSS so they follow the theme. -->
@@ -42,8 +42,8 @@
     </a>
     <nav class="site-nav" aria-label="Sections">
       <a href="#projects">Projects</a>
-      <a href="#name">The name</a>
       <a href="#curious">Console</a>
+      <a href="mailto:support@teamremco.org">Support</a>
     </nav>
   </header>
 
@@ -141,21 +141,6 @@
       </div>
     </section>
 
-    <!-- The name. -->
-    <section class="name tr-container" id="name" aria-labelledby="nameTitle">
-      <picture class="name-photo">
-        <source type="image/webp" srcset="assets/brand/photos/mark-real-600.webp 600w, assets/brand/photos/mark-real-1200.webp 1200w" sizes="(max-width: 700px) 100vw, 24rem" />
-        <img src="assets/brand/photos/mark-real-600.jpg" loading="lazy"
-             srcset="assets/brand/photos/mark-real-600.jpg 600w, assets/brand/photos/mark-real-1200.jpg 1200w"
-             sizes="(max-width: 700px) 100vw, 24rem" width="1200" height="1200"
-             alt="Four wooden blocks standing in a row: a yellow disc on a red cube, and a blue triangle on a green arch." />
-      </picture>
-      <div class="name-text">
-        <h2 id="nameTitle">About the name</h2>
-        <p class="tr-lead">The name comes from our two kids' names, put together.</p>
-      </div>
-    </section>
-
     <!-- The console: a small game, out of the way until someone asks for it. -->
     <section class="curious tr-container" id="curious" aria-labelledby="curiousTitle">
       <div class="curious-card">
@@ -197,12 +182,11 @@
 
   <footer class="site-footer tr-container">
     <p class="tr-muted">© <span id="year">2026</span> Team Remco · <a href="mailto:support@teamremco.org">support@teamremco.org</a><span class="kbd-hint"> · Press <kbd>/</kbd> to open the console.</span></p>
+    <a class="tailscale-link" href="https://frank-hp-elitedesk-800-g5-desktop-mini.taild9032.ts.net:8766/" aria-label="Open the private Team Remco launchpad" title="Private Team Remco launchpad (Tailscale only)">
+      <img src="tailscale.svg" alt="" width="24" height="24" />
+    </a>
   </footer>
 
-  <a class="tailscale-link" href="https://frank-hp-elitedesk-800-g5-desktop-mini.taild9032.ts.net:8766/" aria-label="Open the private Team Remco launchpad" title="Private Team Remco launchpad (Tailscale only)">
-    <img src="tailscale.svg" alt="" width="24" height="24" />
-  </a>
-
-  <script src="app.js?v=8" defer></script>
+  <script src="app.js?v=9" defer></script>
 </body>
 </html>
