@@ -357,6 +357,8 @@ a.project {
 }
 .term-output:focus-visible { outline-offset: -3px; }
 .term-output pre { margin: 0; background: none; border: 0; padding: 0; font-size: 1em; line-height: 1.25; }
+/* the Sisyphus scene is 38 characters wide: shrink it to fit a phone */
+.term-output pre.sisyphus { font-size: clamp(0.7em, 2.9vw, 1em); line-height: 1.2; }
 .term-output a { color: var(--tr-link); }
 .term-output .in { color: var(--tr-fg); font-weight: 600; margin-top: var(--tr-space-2); }
 .term-output .ok { color: var(--tr-success); }
