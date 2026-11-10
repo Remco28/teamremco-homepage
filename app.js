@@ -504,7 +504,7 @@
       grid.appendChild(li);
       return;
     }
-    const list = PROJECTS.filter(p => kind === "all" || p.kind === kind);
+    const list = PROJECTS.filter(p => p.listed !== false && (kind === "all" || p.kind === kind));
     empty.hidden = list.length > 0;
     list.forEach((p, i) => {
       const k = KINDS[p.kind] || KINDS.app;
@@ -526,7 +526,7 @@
       text.textContent = p.about[0] || p.blurb;
       const go = document.createElement("span");
       go.className = "project-go";
-      go.append(p.aboutUrl ? "Read about it" : "Open it", arrowSvg());
+      go.append(p.aboutUrl ? "Read about it" : p.desktop ? "Get it for " + p.desktop : "Open it", arrowSvg());
       a.append(top, h3, text, go);
       li.appendChild(a);
       grid.appendChild(li);
