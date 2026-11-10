@@ -82,6 +82,19 @@
   const glow = document.getElementById("glow"), thought = document.getElementById("thought");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  /* colors: the amber-on-dark defaults, unless the page asks for brand colors (data-brand on the stage):
+     then the brain takes the canvas's CSS color and each spark the color of its project's kind */
+  const branded = stage.hasAttribute("data-brand");
+  const rgbOf = (el) => (getComputedStyle(el).color.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).join(",");
+  const kindRgb = {};
+  let lineRgb = "196,206,228", lineAlpha = 0.5;
+  function readColors() {
+    if (!branded) return;
+    lineRgb = rgbOf(base); lineAlpha = 0.34;
+    document.querySelectorAll("[data-kind-color]").forEach((el) => { kindRgb[el.dataset.kindColor] = rgbOf(el); });
+  }
+  const sparkRgb = (p) => (branded && kindRgb[p.kind]) || null;
+
   /* drawing: the brain is painted once; only the spark is redrawn while it moves */
   let scale = 1, dpr = 1;
   const lw = (px) => px / Math.max(scale, 0.4);
@@ -100,18 +113,25 @@
     c.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
     c.clearRect(0, 0, W, H);
     c.lineCap = "round"; c.lineJoin = "round";
-    glowStroke(c, ART_PATH, "196,206,228", [[1.8, 0.5]]);
+    glowStroke(c, ART_PATH, lineRgb, [[1.8, lineAlpha]]);
   }
 
-  const sprite = document.createElement("canvas");
-  sprite.width = sprite.height = 64;
-  { const s = sprite.getContext("2d"), g = s.createRadialGradient(32, 32, 0, 32, 32, 32);
-    g.addColorStop(0, "rgba(255,250,232,1)"); g.addColorStop(0.18, "rgba(255,222,150,.9)"); g.addColorStop(0.45, "rgba(255,180,80,.28)"); g.addColorStop(1, "rgba(255,180,80,0)");
-    s.fillStyle = g; s.fillRect(0, 0, 64, 64); }
+  const sprites = {};
+  function spriteFor(rgb) {
+    const k = rgb || "amber";
+    if (sprites[k]) return sprites[k];
+    const sprite = document.createElement("canvas");
+    sprite.width = sprite.height = 64;
+    const s = sprite.getContext("2d"), g = s.createRadialGradient(32, 32, 0, 32, 32, 32);
+    if (rgb) { g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(0.2, `rgba(${rgb},.95)`); g.addColorStop(0.5, `rgba(${rgb},.3)`); g.addColorStop(1, `rgba(${rgb},0)`); }
+    else { g.addColorStop(0, "rgba(255,250,232,1)"); g.addColorStop(0.18, "rgba(255,222,150,.9)"); g.addColorStop(0.45, "rgba(255,180,80,.28)"); g.addColorStop(1, "rgba(255,180,80,0)"); }
+    s.fillStyle = g; s.fillRect(0, 0, 64, 64);
+    return (sprites[k] = sprite);
+  }
 
   function clearFx() { fx.style.transition = "none"; fx.style.opacity = 1; fctx.setTransform(1, 0, 0, 1, 0, 0); fctx.clearRect(0, 0, fx.width, fx.height); }
   /* the path stays lit amber behind the spark; the brightest part follows it */
-  function drawSpark(r, head, tail, alpha) {
+  function drawSpark(r, head, tail, alpha, rgb) {
     fctx.setTransform(1, 0, 0, 1, 0, 0); fctx.clearRect(0, 0, fx.width, fx.height);
     fctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
     fctx.lineCap = "round"; fctx.lineJoin = "round";
@@ -119,25 +139,25 @@
     let hi = 0;
     while (hi < pts.length - 1 && cum[hi + 1] <= head) hi++;
     const lit = toPath(pts.slice(0, hi + 1));
-    glowStroke(fctx, lit, "255,180,80", [[7, 0.07]]);
-    glowStroke(fctx, lit, "255,214,140", [[1.8, 0.45]]);
+    glowStroke(fctx, lit, rgb || "255,180,80", [[7, rgb ? 0.12 : 0.07]]);
+    glowStroke(fctx, lit, rgb || "255,214,140", [[1.8, rgb ? 0.6 : 0.45]]);
     for (let k = hi; k > 0 && head - cum[k] < tail; k--) {
       const a = Math.pow(Math.max(0, 1 - (head - cum[k]) / tail), 1.6) * alpha;
       fctx.beginPath(); fctx.moveTo(pts[k - 1].x, pts[k - 1].y); fctx.lineTo(pts[k].x, pts[k].y);
-      fctx.strokeStyle = `rgba(255,190,90,${a * 0.2})`; fctx.lineWidth = lw(12); fctx.stroke();
-      fctx.strokeStyle = `rgba(255,224,160,${a})`; fctx.lineWidth = lw(3); fctx.stroke();
+      fctx.strokeStyle = `rgba(${rgb || "255,190,90"},${a * 0.2})`; fctx.lineWidth = lw(12); fctx.stroke();
+      fctx.strokeStyle = `rgba(${rgb || "255,224,160"},${a})`; fctx.lineWidth = lw(3); fctx.stroke();
     }
     const p = pts[hi], q = pts[Math.min(hi + 1, pts.length - 1)];
     const f = cum[hi + 1] > cum[hi] ? Math.min(1, (head - cum[hi]) / (cum[hi + 1] - cum[hi])) : 0;
     const x = p.x + (q.x - p.x) * f, y = p.y + (q.y - p.y) * f, rad = lw(22);
-    fctx.globalAlpha = alpha; fctx.drawImage(sprite, x - rad, y - rad, rad * 2, rad * 2); fctx.globalAlpha = 1;
+    fctx.globalAlpha = alpha; fctx.drawImage(spriteFor(rgb), x - rad, y - rad, rad * 2, rad * 2); fctx.globalAlpha = 1;
   }
-  function travel(r, done) {
+  function travel(r, done, rgb) {
     clearFx();
     const speed = 300, tail = 230, t0 = performance.now(), endT = (r.len / speed) * 1000, fadeT = 500;
     const frame = (now) => {
       const t = now - t0, fade = Math.max(0, (t - endT) / fadeT);
-      drawSpark(r, Math.min(r.len, (t / 1000) * speed), tail * (1 - fade * 0.7), 1 - fade);
+      drawSpark(r, Math.min(r.len, (t / 1000) * speed), tail * (1 - fade * 0.7), 1 - fade, rgb);
       if (t < endT + fadeT) requestAnimationFrame(frame);
       else { fx.style.transition = "opacity 3.5s ease"; fx.style.opacity = 0; done(); }
     };
@@ -162,6 +182,8 @@
     document.getElementById("tTitle").textContent = e.p.title;
     document.getElementById("tVerb").textContent = verbOf(e.p);
     thought.href = linkOf(e.p);
+    thought.dataset.kind = e.p.kind || "";
+    if (sparkRgb(e.p)) stage.style.setProperty("--spark-rgb", sparkRgb(e.p).replace(/,/g, " "));
     place(e);
     glow.classList.add("on"); thought.classList.add("on");
   }
@@ -195,7 +217,7 @@
     setTimeout(() => {
       const done = () => { busy = false; showThought(); arm(); };
       const r = reduce || a === b ? null : route(spots[a], spots[b]);
-      if (r) travel(r, done); else setTimeout(done, 250);
+      if (r) travel(r, done, sparkRgb(hist[i].p)); else setTimeout(done, 250);
     }, 500);
   }
   function fresh(node) {
@@ -225,13 +247,15 @@
   thought.addEventListener("blur", () => hold(false));
   document.addEventListener("visibilitychange", () => { if (document.hidden) clearTimeout(timer); else if (!busy) arm(4000); });
   new ResizeObserver(size).observe(stage);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => { readColors(); drawBase(); showThought(); });
 
-  size(); nav(); showThought(); arm();
+  readColors(); size(); nav(); showThought(); arm();
 
   /* the plain list */
   const list = document.getElementById("list"), q = document.getElementById("q"), none = document.getElementById("none");
   const rows = PROJECTS.slice().sort((a, b) => a.title.localeCompare(b.title)).map((p) => {
     const li = document.createElement("li"), a = document.createElement("a");
+    li.dataset.kind = p.kind || "";
     a.href = linkOf(p);
     a.innerHTML = '<span class="t"></span><span class="b"></span><span class="tags"></span>';
     a.querySelector(".t").textContent = p.title;
