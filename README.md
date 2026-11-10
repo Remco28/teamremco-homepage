@@ -12,11 +12,17 @@ The earlier weather-sky page (live New York weather and the console, `data-sky` 
 
 The list of projects, read by the homepage's project cards, its console (`ls`, `cd`, `cat`, `grep`) and the Projects page. Adding a project is one entry here.
 
+**This file is public** (anyone can open teamremco.org/projects.json, and the console lists everything in it). Private or work projects never go in it, not even with `listed: false`.
+
+`categories` lists the four categories, each with an `id`, the `label` people see, and one of the brand's four shapes and colors (`circle`/`sun`, `triangle`/`sky`, `square`/`coral`, `arch`/`leaf`). The homepage's shape sorter, the card chips and the Projects page's spark colors all come from here, so renaming or regrouping a category is an edit to this list. Today: Art (circle), Tools (triangle), Fun (square), Odds and ends (arch).
+
+Each entry in `projects`:
+
 | Field | What it is |
 | --- | --- |
 | `id` | Short name used by the console, e.g. `cd charmera` |
 | `title` | The project's own name, as its page shows it |
-| `kind` | `app`, `tool`, `fun` or `experimental`: which shape sorts it on the homepage (circle, triangle, square, arch) |
+| `category` | The `id` of one of the `categories` |
 | `url` | Where the app lives |
 | `blurb` | One line, shown by `ls -l` |
 | `about` | A few sentences, shown by `cat` and searched by `grep` |
@@ -24,7 +30,7 @@ The list of projects, read by the homepage's project cards, its console (`ls`, `
 | `aboutUrl` | The project's About page, or `null` until it has one |
 | `support` | Whether to show a support link (pay what you want); `false` until decided |
 | `repo` | The source code |
-| `spark` | One line in Frank's voice, shown when a spark lands on the project on the Projects page |
+| `spark` | One line in the site's voice (*we*) on the itch the project scratches, shown when a spark lands on it on the Projects page; written from Frank's answers in `docs/spark-worksheet.md` |
 | `desktop` | For a desktop app, the systems it runs on (e.g. `"Linux"`); its link then reads "get it" |
 | `listed` | Optional; `false` keeps a project off the Projects page (the console still has it) |
 

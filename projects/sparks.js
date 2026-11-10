@@ -1,10 +1,11 @@
 /* The projects page: a spark travels the brain and lights up one project at a time. */
 (async () => {
-  let PROJECTS, ART;
+  let PROJECTS, CATEGORIES, ART;
   try {
     const get = (u, o) => fetch(u, o).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
     const [pj, art] = await Promise.all([get("/projects.json", { cache: "no-cache" }), get("brain.json")]);
     PROJECTS = (pj.projects || []).filter((p) => p.url && p.title && p.listed !== false);
+    CATEGORIES = pj.categories || [];
     ART = art;
   } catch {
     const none = document.getElementById("none");
@@ -83,17 +84,20 @@
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* colors: the amber-on-dark defaults, unless the page asks for brand colors (data-brand on the stage):
-     then the brain takes the canvas's CSS color and each spark the color of its project's kind */
+     then the brain takes the canvas's CSS color and each spark the color of its project's category
+     (projects.json says which brand color and shape each category has; the page defines the colors) */
   const branded = stage.hasAttribute("data-brand");
   const rgbOf = (el) => (getComputedStyle(el).color.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).join(",");
-  const kindRgb = {};
+  const colorRgb = {};
   let lineRgb = "196,206,228", lineAlpha = 0.5;
   function readColors() {
     if (!branded) return;
     lineRgb = rgbOf(base); lineAlpha = 0.34;
-    document.querySelectorAll("[data-kind-color]").forEach((el) => { kindRgb[el.dataset.kindColor] = rgbOf(el); });
+    document.querySelectorAll("[data-color-probe]").forEach((el) => { colorRgb[el.dataset.colorProbe] = rgbOf(el); });
   }
-  const sparkRgb = (p) => (branded && kindRgb[p.kind]) || null;
+  const categoryOf = (p) => CATEGORIES.find((c) => c.id === p.category) || {};
+  const sparkRgb = (p) => (branded && colorRgb[categoryOf(p).color]) || null;
+  const mark = (el, p) => { const c = categoryOf(p); el.dataset.shape = c.shape || ""; el.dataset.color = c.color || ""; };
 
   /* drawing: the brain is painted once; only the spark is redrawn while it moves */
   let scale = 1, dpr = 1;
@@ -182,7 +186,7 @@
     document.getElementById("tTitle").textContent = e.p.title;
     document.getElementById("tVerb").textContent = verbOf(e.p);
     thought.href = linkOf(e.p);
-    thought.dataset.kind = e.p.kind || "";
+    mark(thought, e.p);
     if (sparkRgb(e.p)) stage.style.setProperty("--spark-rgb", sparkRgb(e.p).replace(/,/g, " "));
     place(e);
     glow.classList.add("on"); thought.classList.add("on");
@@ -255,7 +259,7 @@
   const list = document.getElementById("list"), q = document.getElementById("q"), none = document.getElementById("none");
   const rows = PROJECTS.slice().sort((a, b) => a.title.localeCompare(b.title)).map((p) => {
     const li = document.createElement("li"), a = document.createElement("a");
-    li.dataset.kind = p.kind || "";
+    mark(li, p);
     a.href = linkOf(p);
     a.innerHTML = '<span class="t"></span><span class="b"></span><span class="tags"></span>';
     a.querySelector(".t").textContent = p.title;

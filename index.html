@@ -22,7 +22,7 @@
   <link rel="preload" href="assets/brand/fonts/web/Baloo2-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/brand/fonts/web/Figtree-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="assets/brand/css/teamremco.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=11" />
 </head>
 <body class="tr-grain">
   <!-- The four core shapes (teamremco-style shapes/core), filled by CSS so they follow the theme. -->
@@ -78,28 +78,12 @@
         <p class="tr-muted">Sort them by shape.</p>
       </div>
 
-      <div class="sorter" role="group" aria-label="Show projects by kind">
-        <button type="button" class="hole" data-kind="all" aria-pressed="true">
+      <div class="sorter" role="group" aria-label="Show projects by category" id="sorter">
+        <button type="button" class="hole" data-category="all" aria-pressed="true">
           <span class="hole-shapes" aria-hidden="true">
             <svg class="fill-sun"><use href="#shape-circle" /></svg><svg class="fill-sky"><use href="#shape-triangle" /></svg><svg class="fill-coral"><use href="#shape-square" /></svg><svg class="fill-leaf"><use href="#shape-arch" /></svg>
           </span>
           <span class="hole-label">All</span>
-        </button>
-        <button type="button" class="hole" data-kind="app" aria-pressed="false">
-          <span class="hole-cut" aria-hidden="true"><svg class="cut"><use href="#shape-circle" /></svg><svg class="peg fill-sun"><use href="#shape-circle" /></svg></span>
-          <span class="hole-label">Apps</span>
-        </button>
-        <button type="button" class="hole" data-kind="tool" aria-pressed="false">
-          <span class="hole-cut" aria-hidden="true"><svg class="cut"><use href="#shape-triangle" /></svg><svg class="peg fill-sky"><use href="#shape-triangle" /></svg></span>
-          <span class="hole-label">Tools</span>
-        </button>
-        <button type="button" class="hole" data-kind="fun" aria-pressed="false">
-          <span class="hole-cut" aria-hidden="true"><svg class="cut"><use href="#shape-square" /></svg><svg class="peg fill-coral"><use href="#shape-square" /></svg></span>
-          <span class="hole-label">Fun</span>
-        </button>
-        <button type="button" class="hole" data-kind="experimental" aria-pressed="false">
-          <span class="hole-cut" aria-hidden="true"><svg class="cut"><use href="#shape-arch" /></svg><svg class="peg fill-leaf"><use href="#shape-arch" /></svg></span>
-          <span class="hole-label">Experiments</span>
         </button>
       </div>
 
@@ -187,6 +171,6 @@
     </a>
   </footer>
 
-  <script src="app.js?v=10" defer></script>
+  <script src="app.js?v=11" defer></script>
 </body>
 </html>

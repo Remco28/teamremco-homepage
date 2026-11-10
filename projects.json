@@ -1,8 +1,14 @@
 {
+  "categories": [
+    { "id": "art", "label": "Art", "shape": "circle", "color": "sun" },
+    { "id": "tools", "label": "Tools", "shape": "triangle", "color": "sky" },
+    { "id": "fun", "label": "Fun", "shape": "square", "color": "coral" },
+    { "id": "odds", "label": "Odds and ends", "shape": "arch", "color": "leaf" }
+  ],
   "projects": [
     {
       "id": "charmera",
-      "kind": "tool",
+      "category": "art",
       "title": "charmera collage",
       "url": "https://charmera.teamremco.org/",
       "blurb": "tiny camera, big sheet — photo collages",
@@ -23,7 +29,7 @@
     },
     {
       "id": "crokinole",
-      "kind": "fun",
+      "category": "fun",
       "title": "Crokinole",
       "url": "https://crokinole.teamremco.org/",
       "blurb": "around the board — the flicking game",
@@ -44,7 +50,7 @@
     },
     {
       "id": "abacus",
-      "kind": "app",
+      "category": "fun",
       "title": "Soroban",
       "url": "https://abacus.teamremco.org/",
       "blurb": "a tactile soroban for curious minds",
@@ -67,7 +73,7 @@
     },
     {
       "id": "squarehole",
-      "kind": "fun",
+      "category": "fun",
       "title": "Square Hole",
       "url": "https://squarehole.teamremco.org/",
       "blurb": "every shape fits",
@@ -89,7 +95,7 @@
     },
     {
       "id": "penalties",
-      "kind": "tool",
+      "category": "tools",
       "title": "Fencing Penalties",
       "url": "https://penalties.teamremco.org/",
       "blurb": "USA Fencing penalty chart, quick reference",
@@ -112,7 +118,7 @@
     },
     {
       "id": "thinkspace",
-      "kind": "tool",
+      "category": "tools",
       "title": "Thinkspace",
       "url": "https://github.com/Remco28/thinkspace",
       "blurb": "a quick place to show someone what you mean",
@@ -136,7 +142,7 @@
     },
     {
       "id": "newsletter",
-      "kind": "app",
+      "category": "odds",
       "title": "En Garde Gazette",
       "url": "https://newsletter.teamremco.org/",
       "blurb": "En Garde Gazette — weekly épée newsletter",
@@ -159,7 +165,7 @@
     },
     {
       "id": "poser",
-      "kind": "app",
+      "category": "tools",
       "title": "Fencing Poser",
       "url": "https://remco28.github.io/fencing-poser/",
       "blurb": "a wooden mannequin for fencing coaches",
@@ -181,7 +187,7 @@
     },
     {
       "id": "dogspeak",
-      "kind": "tool",
+      "category": "tools",
       "title": "Dogspeak",
       "url": "https://github.com/Remco28/dogspeak",
       "blurb": "talk freely, get a clear prompt",

@@ -25,10 +25,11 @@
     out.scrollTop = out.scrollHeight;
   }
   /* the project list lives in projects.json, shared with the projects page */
-  let PROJECTS = [], projectsFailed = false;
+  let PROJECTS = [], CATEGORIES = [], projectsFailed = false;
   const projectsReady = fetch("projects.json", { cache: "no-cache" })
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(d => {
+      CATEGORIES = d.categories || [];
       PROJECTS = (d.projects || []).filter(p => p.id && p.url)
         .map(p => ({ ...p, name: p.id, blurb: p.blurb || "", about: p.about || [], tags: p.tags || [] }));
       DESTS = [...PROJECTS, LAUNCHPAD];
@@ -470,14 +471,10 @@
   });
 
   /* ---------- the projects, sorted by shape ---------- */
-  const KINDS = {
-    app: { shape: "circle", color: "sun", label: "App" },
-    tool: { shape: "triangle", color: "sky", label: "Tool" },
-    fun: { shape: "square", color: "coral", label: "Fun" },
-    experimental: { shape: "arch", color: "leaf", label: "Experiment" }
-  };
-  const grid = $("#projectGrid"), empty = $("#projectsEmpty"), holes = $$(".sorter .hole");
+  /* The categories (label, shape, color) come from projects.json, so renaming one is a data change. */
+  const grid = $("#projectGrid"), empty = $("#projectsEmpty"), sorter = $("#sorter");
   const SVG = "http://www.w3.org/2000/svg";
+  const categoryOf = p => CATEGORIES.find(c => c.id === p.category) || CATEGORIES[0] || { shape: "circle", color: "sun", label: "" };
   function shapeSvg(name, cls) {
     const svg = document.createElementNS(SVG, "svg");
     svg.setAttribute("class", cls);
@@ -495,7 +492,27 @@
     svg.innerHTML = '<path d="M5 12h14" /><path d="m12 5 7 7-7 7" />';
     return svg;
   }
-  function renderProjects(kind) {
+  /* one hole in the lid per category, after "All" */
+  function buildSorter() {
+    CATEGORIES.forEach(c => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "hole"; b.dataset.category = c.id;
+      b.setAttribute("aria-pressed", "false");
+      const cut = document.createElement("span");
+      cut.className = "hole-cut"; cut.setAttribute("aria-hidden", "true");
+      cut.append(shapeSvg(c.shape, "cut"), shapeSvg(c.shape, "peg fill-" + c.color));
+      const label = document.createElement("span");
+      label.className = "hole-label"; label.textContent = c.label;
+      b.append(cut, label);
+      sorter.appendChild(b);
+    });
+    const holes = $$(".hole", sorter);
+    holes.forEach(h => h.addEventListener("click", () => {
+      holes.forEach(o => o.setAttribute("aria-pressed", String(o === h)));
+      renderProjects(h.dataset.category);
+    }));
+  }
+  function renderProjects(category) {
     grid.textContent = "";
     if (projectsFailed) {
       const li = document.createElement("li");
@@ -504,10 +521,10 @@
       grid.appendChild(li);
       return;
     }
-    const list = PROJECTS.filter(p => p.listed !== false && (kind === "all" || p.kind === kind));
+    const list = PROJECTS.filter(p => p.listed !== false && (category === "all" || p.category === category));
     empty.hidden = list.length > 0;
     list.forEach((p, i) => {
-      const k = KINDS[p.kind] || KINDS.app;
+      const k = categoryOf(p);
       const li = document.createElement("li");
       li.style.animationDelay = i * 45 + "ms";
       const a = document.createElement("a");
@@ -532,11 +549,7 @@
       grid.appendChild(li);
     });
   }
-  holes.forEach(h => h.addEventListener("click", () => {
-    holes.forEach(o => o.setAttribute("aria-pressed", String(o === h)));
-    renderProjects(h.dataset.kind);
-  }));
-  projectsReady.then(() => renderProjects("all"));
+  projectsReady.then(() => { buildSorter(); renderProjects("all"); });
 
   /* ---------- the table: four paper shapes to push around ---------- */
   (function table() {
