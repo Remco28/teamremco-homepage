@@ -381,14 +381,6 @@
     svg.appendChild(use);
     return svg;
   }
-  function arrowSvg() {
-    const svg = document.createElementNS(SVG, "svg");
-    svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("fill", "none"); svg.setAttribute("stroke", "currentColor");
-    svg.setAttribute("stroke-width", "2"); svg.setAttribute("stroke-linecap", "round"); svg.setAttribute("stroke-linejoin", "round");
-    svg.setAttribute("aria-hidden", "true");
-    svg.innerHTML = '<path d="M5 12h14" /><path d="m12 5 7 7-7 7" />';
-    return svg;
-  }
   /* one hole in the lid per category, after "All" */
   function buildSorter() {
     CATEGORIES.forEach(c => {
@@ -440,7 +432,7 @@
       text.textContent = p.about[0] || p.blurb;
       const go = document.createElement("span");
       go.className = "project-go";
-      go.append(p.aboutUrl ? "Read about it" : p.desktop ? "Get it for " + p.desktop : "Open it", arrowSvg());
+      go.textContent = p.aboutUrl ? "Read about it" : p.desktop ? "Get it for " + p.desktop : "Open it";
       a.append(top, h3, text, go);
       li.appendChild(a);
       grid.appendChild(li);
