@@ -30,7 +30,7 @@ Each entry in `projects`:
 | `aboutUrl` | The project's About page, or `null` until it has one |
 | `support` | Whether to show a support link (pay what you want); `false` until decided |
 | `repo` | The source code |
-| `spark` | One line in the site's voice (*we*) on the itch the project scratches, shown when a spark lands on it on the Projects page; written from Frank's answers in `docs/spark-worksheet.md` |
+| `spark` | One line in the site's voice (*we*) on the itch the project scratches, shown when a spark lands on it on the Projects page; to be written from Frank's words (`docs/copy-to-write.md`) |
 | `desktop` | For a desktop app, the systems it runs on (e.g. `"Linux"`); its link then reads "get it" |
 | `listed` | Optional; `false` keeps a project off the Projects page (the console still has it) |
 
@@ -40,7 +40,7 @@ The private launchpad is not in this file; it lives in `app.js`.
 
 ## Projects page
 
-`projects/` is the Projects page at https://teamremco.org/projects/: a line drawing of a brain where a spark travels along the folds and lands on one project at a time, with the plain list underneath. `sparks.js` reads `/projects.json` and `brain.json`.
+`projects/` is the Projects page at https://teamremco.org/projects/: a line drawing of a brain where a spark travels along the folds and lands on one project at a time, with the plain list underneath. `sparks.js` reads `/projects.json` and `brain.json`. It uses the brand (the `data-brand` stage: each spark takes its category's color). The earlier amber design is `projects/index.html` at commit 185355c, if we ever want it back.
 
 `brain.json` is traced from `tools/brain/brain-source.png`, a generated line drawing (white single-stroke lines on black). To trace a new drawing:
 
