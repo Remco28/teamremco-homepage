@@ -86,11 +86,9 @@ It shows on the Projects page and opens the project's card on the homepage.
 
 ## Odds and ends
 
-22. **Footer**: anything besides © and the email? *Optional.*
-   →
+22. **Footer**: *Kept as is (© Team Remco and support@teamremco.org).*
 
-23. **404 page**: one line for a page that doesn't exist. *The toppled blocks photo.*
-   →
+23. **404 page**: *Done on 2026-11-21 (see 404.html, using the toppled blocks photo).*
 
 ---
 

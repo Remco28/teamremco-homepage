@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Nothing at this address on Team Remco." />
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#F8F5EE" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#161D29" media="(prefers-color-scheme: dark)" />
+  <title>Page not found · Team Remco</title>
+
+  <link rel="icon" href="/assets/brand/icons/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/assets/brand/icons/favicon.ico" sizes="48x48" />
+  <link rel="apple-touch-icon" href="/assets/brand/icons/apple-touch-icon.png" />
+
+  <link rel="preload" href="/assets/brand/fonts/web/Baloo2-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/brand/fonts/web/Figtree-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/assets/brand/css/teamremco.css?v=1" />
+  <link rel="stylesheet" href="/styles.css?v=13" />
+  <style>
+.not-found {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  align-items: center;
+  gap: var(--tr-space-10);
+  padding-block: var(--tr-space-10) var(--tr-space-16);
+}
+.not-found-text .tr-eyebrow {
+  margin-bottom: var(--tr-space-2);
+}
+.not-found-text h1 {
+  font-size: clamp(var(--tr-font-size-4xl), 5vw, var(--tr-font-size-5xl));
+  line-height: var(--tr-line-height-5xl);
+  margin-bottom: var(--tr-space-4);
+}
+.not-found-text .tr-lead {
+  max-width: 28rem;
+  margin-bottom: var(--tr-space-8);
+}
+.not-found-photo {
+  margin: 0;
+}
+.not-found-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--tr-radius-2xl);
+  box-shadow: 0 1px 2px var(--tr-paper-shadow-near), 0 10px 24px var(--tr-paper-shadow-far);
+}
+
+@media (max-width: 820px) {
+  .not-found {
+    grid-template-columns: 1fr;
+    gap: var(--tr-space-6);
+    padding-block: var(--tr-space-4) var(--tr-space-12);
+  }
+  .not-found-photo {
+    order: -1;
+    max-width: 30rem;
+  }
+}
+  </style>
+</head>
+<body class="tr-grain">
+  <a class="skip-link" href="#top">Skip to content</a>
+
+  <header class="site-header tr-container">
+    <a class="brand" href="/" aria-label="Team Remco, home">
+      <img class="tr-light-only" src="/assets/brand/logo/team-remco-horizontal-color.svg" alt="" width="241" height="32" />
+      <img class="tr-dark-only" src="/assets/brand/logo/team-remco-horizontal-color-dark.svg" alt="" width="241" height="32" />
+    </a>
+    <nav class="site-nav" aria-label="Sections">
+      <a href="/projects/">Projects</a>
+      <a href="/#curious">Console</a>
+      <a href="/support/">Support</a>
+    </nav>
+  </header>
+
+  <main id="top" class="tr-container">
+    <section class="not-found" aria-labelledby="notFoundTitle">
+      <div class="not-found-text">
+        <p class="tr-eyebrow">404</p>
+        <h1 id="notFoundTitle">Nothing at this address</h1>
+        <p class="tr-lead">That page isn't here. It may have moved, or the link might be a little off.</p>
+        <p class="hero-actions">
+          <a class="tr-btn" href="/">Back to home</a>
+          <a class="tr-btn tr-btn--ghost" href="/projects/">See the projects</a>
+        </p>
+      </div>
+
+      <figure class="not-found-photo">
+        <picture>
+          <source type="image/webp" srcset="/assets/brand/photos/toppled-640.webp 640w, /assets/brand/photos/toppled-960.webp 960w" sizes="(max-width: 820px) 100vw, 38rem" />
+          <img src="/assets/brand/photos/toppled-960.jpg" width="960" height="640"
+               srcset="/assets/brand/photos/toppled-640.jpg 640w, /assets/brand/photos/toppled-960.jpg 960w"
+               sizes="(max-width: 820px) 100vw, 38rem"
+               alt="Wooden blocks on a table: the green arch stands upright while the blue roof has tipped over onto its side in front of it." />
+        </picture>
+      </figure>
+    </section>
+  </main>
+
+  <footer class="site-footer tr-container">
+    <p class="tr-muted">© 2026 Team Remco · <a href="mailto:support@teamremco.org">support@teamremco.org</a></p>
+  </footer>
+</body>
+</html>
