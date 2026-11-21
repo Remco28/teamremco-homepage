@@ -67,6 +67,8 @@ It shows on the Projects page and opens the project's card on the homepage.
 
 ## Support page (new)
 
+*Done on 2026-11-21, from Frank's own words (see support/index.html). Kept here for reference.*
+
 17. **Intro**: what supporting Team Remco means. *Pay what you want, free to use, no ads.*
    →
 
